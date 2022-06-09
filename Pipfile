@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+fastapi = "==0.78.0"
+pytest = "==7.1.2"
+autopep8 = "==1.6.0"
+uvicorn = {extras = ["standard"], version = "==0.17.6"}
+requests-toolbelt = "==0.9.1"
+python-multipart = "==0.0.5"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
+
+[scripts]
+serve = "uvicorn src.main:app --reload --host=127.0.0.1 --port=8004"
+proxy = "kubectl port-forward svc/svc-files 8004:8004"
+build = "docker buildx build -f Dockerfile --platform linux/amd64 -t mx2542/anti-files:1.0 . --push"
+deploy = "kubectl apply -f deployment.yaml"

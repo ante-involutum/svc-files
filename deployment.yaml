@@ -1,0 +1,56 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: svc-files
+  labels:
+    app: files
+spec:
+  selector:
+    app: files
+  ports:
+    - protocol: TCP
+      name: droopy
+      port: 8004
+      targetPort:
+        8004
+        # nodePort: 30085
+  clusterIP: None
+  # type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: svc-files
+  labels:
+    app: files
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: files
+  template:
+    metadata:
+      labels:
+        app: files
+    spec:
+      containers:
+        - name: files
+          image: mx2542/anti-files:1.0
+          command:
+            - "uvicorn"
+          args:
+            - "src.main:app"
+            - "--reload"
+            - "--host=0.0.0.0"
+            - "--port=8004"
+          ports:
+            - containerPort: 8004
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /files/cache
+              name: jmx
+      volumes:
+        - name: jmx
+          persistentVolumeClaim:
+            claimName: jmx-nfs-pvc
