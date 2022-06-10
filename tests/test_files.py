@@ -1,21 +1,18 @@
-from pprint import pprint
-from requests_toolbelt.sessions import BaseUrlSession
+import pytest
 
 
+@pytest.mark.usefixtures('init')
 class TestController():
 
-    bs = BaseUrlSession(base_url='http://127.0.0.1:8004')
-
     def test_upload(self):
-        with open('./README.md', 'r') as fp:
-            resp = self.bs.post('/upload', files={'fp': fp})
+        with open('./README.md', 'r') as f:
+            resp = self.bs.post('/files', files={'file': f})
         assert resp.status_code == 200
 
     def test_file_list(self):
-        resp = self.bs.get('/file_list')
-        pprint(resp.json())
+        resp = self.bs.get('/files')
         assert resp.status_code == 200
 
-    def test_download(self):
-        resp = self.bs.get('/download/README.md')
+    def test_remove(self):
+        resp = self.bs.delete('/files/README.md')
         assert resp.status_code == 200
