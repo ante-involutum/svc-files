@@ -9,13 +9,10 @@ spec:
     app: files
   ports:
     - protocol: TCP
-      name: droopy
+      name: http
       port: 8004
-      targetPort:
-        8004
-        # nodePort: 30085
+      targetPort: 8004
   clusterIP: None
-  # type: NodePort
 
 ---
 apiVersion: apps/v1

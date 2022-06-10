@@ -1,7 +1,6 @@
 import os
 from fastapi import FastAPI, UploadFile
 
-from starlette.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -20,22 +19,40 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 cache = './cache'
 
 
-@app.post("/upload/")
-async def upload(fp: UploadFile):
-    open(f'{cache}/{fp.filename}', 'wb').write(await fp.read())
-    return {"filename": fp.filename}
+@app.post("/files")
+async def file_upload(file: UploadFile):
+    open(f'{cache}/{file.filename}', 'wb').write(await file.read())
+    resp = {
+        "code": 200,
+        'details': {
+            "name": file.filename
+        },
+        "message": "success"
+    }
+    return resp
 
 
-@app.get("/file_list")
-async def file_list():
-    return os.listdir(f'{cache}')
+@app.get("/files")
+async def files_list():
+    resp = {
+        "code": 200,
+        'details': os.listdir(f'{cache}'),
+        "message": "success"
+    }
+    return resp
 
 
-@app.get("/download/{fp}")
-async def download(fp):
-    fn = f'{cache}/{fp}'
-    return FileResponse(fn, filename=fp)
+@app.delete("/files/{name}")
+async def file_remove(name):
+    os.remove(f'{cache}/{name}')
+    resp = {
+
+        "code": 200,
+        'details': {},
+        "message": "success"
+
+    }
+    return resp
