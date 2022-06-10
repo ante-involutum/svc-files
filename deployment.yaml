@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
         - name: files
-          image: mx2542/anti-files:1.0
+          image: mx2542/anti-files:latest
           command:
             - "uvicorn"
           args:
