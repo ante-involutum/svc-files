@@ -19,5 +19,5 @@ python_version = "3.9"
 [scripts]
 serve = "uvicorn src.main:app --reload --host=127.0.0.1 --port=8004"
 proxy = "kubectl port-forward svc/svc-files 8004:8004"
-build = "docker buildx build -f Dockerfile --platform linux/amd64 -t mx2542/anti-files:1.0 . --push"
+build = "docker buildx build -f Dockerfile --platform linux/amd64 -t mx2542/anti-files:latest . --push"
 deploy = "kubectl apply -f deployment.yaml"
