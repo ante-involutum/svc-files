@@ -7,8 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(name="files")
 
 origins = [
-    "http://localhost",
-    "http://localhost:8080",
+    # "http://localhost",
+    "*"
 ]
 
 app.add_middleware(
