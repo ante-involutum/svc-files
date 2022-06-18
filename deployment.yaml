@@ -1,7 +1,23 @@
+# nfs pvc for files
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: jmx-nfs-pvc
+spec:
+  storageClassName: tink-nfs
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+# service for files
+---
 kind: Service
 apiVersion: v1
 metadata:
-  name: svc-files
+  name: files
   labels:
     app: files
 spec:
@@ -14,11 +30,12 @@ spec:
       targetPort: 8004
   clusterIP: None
 
+# deployment for files
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: svc-files
+  name: files
   labels:
     app: files
 spec:
