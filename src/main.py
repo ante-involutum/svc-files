@@ -1,7 +1,9 @@
 import os
-from fastapi import FastAPI, UploadFile
 
+
+from fastapi import FastAPI, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from src.utils.editer import remake
 
 
 app = FastAPI(name="files")
@@ -25,6 +27,20 @@ cache = './cache'
 @app.post("/files")
 async def file_upload(file: UploadFile):
     open(f'{cache}/{file.filename}', 'wb').write(await file.read())
+    resp = {
+        "code": 200,
+        'details': {
+            "name": file.filename
+        },
+        "message": "success"
+    }
+    return resp
+
+
+@app.post("/files/remake")
+async def file_remake(file: UploadFile):
+    open(f'{cache}/{file.filename}', 'wb').write(await file.read())
+    remake(f'{cache}/{file.filename}', f'{cache}/{file.filename}')
     resp = {
         "code": 200,
         'details': {

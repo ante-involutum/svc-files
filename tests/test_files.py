@@ -16,3 +16,8 @@ class TestController():
     def test_remove(self):
         resp = self.bs.delete('/files/README.md')
         assert resp.status_code == 200
+
+    def test_remake(self):
+        with open('./tests/jmx/example.jmx', 'r') as f:
+            resp = self.bs.post('/files/remake', files={'file': f})
+        assert resp.status_code == 200
