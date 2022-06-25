@@ -47,6 +47,12 @@ spec:
           ports:
             - containerPort: 8004
           imagePullPolicy: Always
+          env:
+            - name: INFLUXDB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: middleware-influxdb
+                  key: admin-user-token
           volumeMounts:
             - mountPath: /files/cache
               name: jmx
