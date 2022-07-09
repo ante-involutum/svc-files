@@ -1,9 +1,11 @@
 import os
+import uuid
 
 
 from fastapi import FastAPI, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from src.utils.editer import remake
+from src.model.file import File
 
 
 app = FastAPI(name="files")
@@ -38,13 +40,12 @@ async def file_upload(file: UploadFile):
 
 
 @app.post("/files/remake")
-async def file_remake(file: UploadFile):
-    open(f'{cache}/{file.filename}', 'wb').write(await file.read())
-    remake(f'{cache}/{file.filename}', f'{cache}/{file.filename}')
+async def file_remake(file: File):
+    remake(f'{cache}/{file.name}',
+           f'{cache}/InfluxdbBackendListener-{file.name}')
     resp = {
         "code": 200,
         'details': {
-            "name": file.filename
         },
         "message": "success"
     }

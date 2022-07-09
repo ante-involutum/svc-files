@@ -18,6 +18,5 @@ class TestController():
         assert resp.status_code == 200
 
     def test_remake(self):
-        with open('./tests/jmx/example.jmx', 'r') as f:
-            resp = self.bs.post('/files/remake', files={'file': f})
+        resp = self.bs.post('/files/remake', json={'name': 'example.jmx'})
         assert resp.status_code == 200
