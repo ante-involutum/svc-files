@@ -20,3 +20,14 @@ class TestController():
     def test_remake(self):
         resp = self.bs.post('/files/remake', json={'name': 'example.jmx'})
         assert resp.status_code == 200
+
+    def test_files_plan(self):
+        resp = self.bs.post('/files/v2/plan', json={
+            'plan_name': 'str',
+            'attachment': ['1']
+        })
+        assert resp.status_code == 200
+
+    def test_files_get_plan(self):
+        resp = self.bs.post('/files/v2/download/333')
+        assert resp.status_code == 200
