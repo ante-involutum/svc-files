@@ -1,11 +1,12 @@
 import os
-import uuid
+from io import BytesIO
 
 
+from minio import Minio
+from src.utils.editer import remake
+from src.model.file import File, Plan
 from fastapi import FastAPI, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from src.utils.editer import remake
-from src.model.file import File
 
 
 app = FastAPI(name="files")
@@ -24,6 +25,70 @@ app.add_middleware(
 )
 
 cache = './cache'
+test_plans = []
+
+minioClient = Minio(
+    '192.168.100.8:31476',
+    access_key='y84f7kLmoL0Ua8Ko',
+    secret_key='HswPHvTHE4NRixJkfpcvI9vuNbwZgmAk',
+    secure=False
+)
+
+
+@app.post("/files/v2")
+async def file_upload_to_minio(file: UploadFile):
+    byte = BytesIO(await file.read())
+    length = len(byte.getvalue())
+    result = minioClient.put_object('jmx', file.filename, byte, length)
+    resp = {
+        "code": 200,
+        'details': {
+            'bucket_name': result.bucket_name,
+            'object_name': result.object_name,
+            "etag": result.etag
+        },
+        "message": "success"
+    }
+    return resp
+
+
+@app.post("/files/v2/plan")
+async def files_plan(plan: Plan):
+    test_plans.append(plan)
+    resp = {
+        "code": 200,
+        'details': test_plans,
+        "message": "success"
+    }
+    return resp
+
+
+@app.get("/files/v2/plan")
+async def get_plan():
+    resp = {
+        "code": 200,
+        'details': test_plans,
+        "message": "success"
+    }
+    return resp
+
+
+@app.post("/files/v2/download/{plan_name}")
+async def files_get_plan(plan_name):
+    for i in test_plans:
+        for k, m in i:
+            if m == plan_name:
+                for v in i.attachment:
+                    name = v['object_name']
+                    fp = f'{cache}/{name}'
+                    result = minioClient.fget_object(
+                        v['bucket_name'], name, fp)
+    resp = {
+        "code": 200,
+        'details': {},
+        "message": "success"
+    }
+    return resp
 
 
 @app.post("/files")
