@@ -1,12 +1,12 @@
 import os
 from io import BytesIO
 
-
 from minio import Minio
 from src.utils.editer import remake
 from src.model.file import File, Plan
 from fastapi import FastAPI, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from src.env import MIDDLEWARE_MINIO_SERVICE_HOST, MIDDLEWARE_MINIO_SERVICE_PORT, MIDDLEWARE_MINIO_ACCESS_KEY, MIDDLEWARE_MINIO_SECRET_KEY
 
 
 app = FastAPI(name="files")
@@ -28,9 +28,9 @@ cache = './cache'
 test_plans = []
 
 minioClient = Minio(
-    '192.168.100.8:31476',
-    access_key='y84f7kLmoL0Ua8Ko',
-    secret_key='HswPHvTHE4NRixJkfpcvI9vuNbwZgmAk',
+    f'{MIDDLEWARE_MINIO_SERVICE_HOST}:{MIDDLEWARE_MINIO_SERVICE_PORT}',
+    access_key=MIDDLEWARE_MINIO_ACCESS_KEY,
+    secret_key=MIDDLEWARE_MINIO_SECRET_KEY,
     secure=False
 )
 
