@@ -48,11 +48,16 @@ spec:
             - containerPort: 8004
           imagePullPolicy: Always
           env:
-            - name: INFLUXDB_TOKEN
+            - name: MIDDLEWARE_MINIO_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: middleware-influxdb
-                  key: admin-user-token
+                  name: middleware-minio
+                  key: root-user
+            - name: MIDDLEWARE_MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: middleware-minio
+                  key: root-password
           volumeMounts:
             - mountPath: /files/cache
               name: jmx
