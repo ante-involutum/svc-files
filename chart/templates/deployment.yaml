@@ -58,10 +58,3 @@ spec:
                 secretKeyRef:
                   name: middleware-minio
                   key: root-password
-          volumeMounts:
-            - mountPath: /files/cache
-              name: jmx
-      volumes:
-        - name: jmx
-          persistentVolumeClaim:
-            claimName: jmx-nfs-pvc
