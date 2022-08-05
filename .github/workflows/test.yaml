@@ -29,3 +29,11 @@ jobs:
         with:
           push: true
           tags: mx2542/anti-files:latest
+
+
+      - name: Build and push boxter
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          file: "{context}/boxter.Dockerfile"
+          tags: mx2542/anti-boxter:latest
