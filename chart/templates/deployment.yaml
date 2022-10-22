@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
         - name: files
-          image: mx2542/anti-files:latest
+          image: {{ .Values.image }}
           command:
             - "uvicorn"
           args:
@@ -46,7 +46,7 @@ spec:
             - "--port=8004"
           ports:
             - containerPort: 8004
-          imagePullPolicy: Always
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
           env:
             - name: MIDDLEWARE_MINIO_ACCESS_KEY
               valueFrom:

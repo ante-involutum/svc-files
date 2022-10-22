@@ -1,4 +1,4 @@
-name: test
+name: main
 on:
   push:
     branches:
@@ -28,4 +28,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: mx2542/anti-files:latest
+          tags: mx2542/files:latest
