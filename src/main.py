@@ -1,7 +1,10 @@
 from io import BytesIO
+from loguru import logger
 
 from minio import Minio
-from fastapi import FastAPI, UploadFile
+from minio.error import InvalidResponseError
+
+from fastapi import FastAPI, UploadFile, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from src.env import *
 
@@ -22,6 +25,40 @@ minioClient = Minio(
     secret_key=MIDDLEWARE_MINIO_SECRET_KEY,
     secure=False
 )
+
+
+def get_report(bucket_name: str, prefix: str):
+    try:
+        objects = minioClient.list_objects(
+            bucket_name,
+            prefix=prefix,
+            recursive=True
+        )
+        for obj in objects:
+            logger.info(
+                [
+                    obj.bucket_name,
+                    obj.object_name.encode('utf-8'),
+                    obj.last_modified,
+                    obj.etag,
+                    obj.size,
+                    obj.content_type
+                ]
+            )
+            minioClient.fget_object(
+                'atop', obj.object_name, f'tmp/{obj.object_name}')
+    except InvalidResponseError as err:
+        logger.debug(err)
+
+
+@app.get("/files/report/{prefix}")
+async def pull_report(prefix: str, background_tasks: BackgroundTasks):
+    background_tasks.add_task(
+        get_report,
+        'atop',
+        prefix
+    )
+    return 200
 
 
 @app.post("/files/upload")
