@@ -25,5 +25,5 @@ proxy = "kubectl port-forward svc/svc-files 8004:8004"
 build = "docker buildx build -f Dockerfile --platform linux/amd64 -t mx2542/anti-files:latest . --push"
 build-boxter = "docker buildx build -f boxter.Dockerfile --platform linux/amd64 -t mx2542/anti-boxter:latest . --push"
 deploy = "helm install files chart"
-test = 'pytest -v --html=report.html --self-contained-html'
+test = 'pytest -v --html=report/report.html --self-contained-html --host=127.0.0.1:9000'
 build-plugin = 'python setup.py sdist bdist_wheel'
