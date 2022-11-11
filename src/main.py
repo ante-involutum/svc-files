@@ -50,7 +50,7 @@ def pull(bucket_name: str, prefix: str):
         logger.debug(err)
 
 
-@app.post("/files/generate_report/{prefix}")
+@app.get("/files/generate_report/{prefix}")
 async def pull_form_minio(prefix: str, background_tasks: BackgroundTasks):
     background_tasks.add_task(pull, 'atop', prefix)
     logger.info(f'Generate_report {prefix} in the background')
