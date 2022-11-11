@@ -34,6 +34,8 @@ spec:
       labels:
         app: files
     spec:
+      imagePullSecrets:
+        - name: regcred
       containers:
         - name: files
           image: {{ .Values.image }}
