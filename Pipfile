@@ -21,9 +21,7 @@ python_version = "3.9"
 
 [scripts]
 serve = "uvicorn src.main:app --reload --host=127.0.0.1 --port=8004"
-proxy = "kubectl port-forward svc/svc-files 8004:8004"
-build = "docker buildx build -f Dockerfile --platform linux/amd64 -t mx2542/anti-files:latest . --push"
-build-boxter = "docker buildx build -f boxter.Dockerfile --platform linux/amd64 -t mx2542/anti-boxter:latest . --push"
-deploy = "helm install files chart"
+build-qt = "docker buildx build -f Dockerfile --platform linux/amd64 -t dockerhub.qingcloud.com/qingtest/files:1.0 . --push"
+build = "docker buildx build -f Dockerfile --platform linux/amd64 -t mx2542/files:latest . --push"
 test = 'pytest -v --html=report/report.html --self-contained-html --host=127.0.0.1:9000'
 build-plugin = 'python setup.py sdist bdist_wheel'
