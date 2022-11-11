@@ -48,18 +48,21 @@ def get_report(bucket_name: str, prefix: str):
             )
             minioClient.fget_object(
                 'atop', obj.object_name, f'cache/{obj.object_name}')
-    except InvalidResponseError as err:
+    except Exception as err:
         logger.debug(err)
 
 
-@app.get("/files/aomaker/{prefix}")
+@app.get("/files/aomaker/report/{prefix}")
 async def pull_report(prefix: str):
     get_report('atop', prefix)
-    shutil.copytree(
-        f'cache/{prefix}/data/autotest/reports/html',
-        f'tmp/{prefix}/reports/{prefix}'
-    )
-    return 200
+    try:
+        shutil.copytree(
+            f'cache/{prefix}/data/autotest/reports/html',
+            f'tmp/{prefix}/reports/{prefix}'
+        )
+        return {'url': f'/allure-ui/allure-docker-service-ui/projects/{prefix}/reports/{prefix}'}
+    except Exception as err:
+        logger.debug(err)
 
 
 @app.post("/files/upload")

@@ -37,6 +37,9 @@ spec:
       containers:
         - name: files
           image: {{ .Values.image }}
+          securityContext:
+            runAsUser: 0
+            privileged: false
           command:
             - "uvicorn"
           args:
@@ -47,6 +50,11 @@ spec:
           ports:
             - containerPort: 8004
           imagePullPolicy: {{ .Values.imagePullPolicy }}
+          {{- if .Values.allureService }}
+          volumeMounts:
+            - name: reports-volume
+              mountPath: /files/tmp
+          {{- end }}
           env:
             - name: MIDDLEWARE_MINIO_ACCESS_KEY
               valueFrom:
@@ -58,3 +66,11 @@ spec:
                 secretKeyRef:
                   name: middleware-minio
                   key: root-password
+      {{- if .Values.allureService }}
+      volumes:
+        - name: reports-volume
+          persistentVolumeClaim:
+            claimName: allure-persistent-volume-claim
+      {{- end }}
+
+
