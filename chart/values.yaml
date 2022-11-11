@@ -1,3 +1,2 @@
 image: "mx2542/files:latest"
 imagePullPolicy: Always
-allureService: true

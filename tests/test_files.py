@@ -14,9 +14,6 @@ class TestFiles():
                 '/files/upload', headers=self.header, files={'file': f})
         assert resp.status_code == 200
 
-    def test_pull_report(self):
-        resp = self.bs.get('/files/aomaker/report/199999', headers=self.header)
+    def test_generate_report(self):
+        resp = self.bs.post('/files/generate_report/199999', headers=self.header)
         assert resp.status_code == 200
-
-    def test_locust_pull_report(self):
-        self.bs.get('/files/locust/report/1', headers=self.header)

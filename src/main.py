@@ -1,11 +1,8 @@
-import shutil
 from io import BytesIO
 from loguru import logger
 
 from minio import Minio
-from minio.error import InvalidResponseError
 
-from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, UploadFile, BackgroundTasks
 
@@ -30,7 +27,7 @@ minioClient = Minio(
 )
 
 
-def get_report(bucket_name: str, prefix: str):
+def pull(bucket_name: str, prefix: str):
     try:
         objects = minioClient.list_objects(
             bucket_name,
@@ -49,28 +46,16 @@ def get_report(bucket_name: str, prefix: str):
                 ]
             )
             minioClient.fget_object(
-                'atop', obj.object_name, f'cache/{obj.object_name}')
+                'atop', obj.object_name, f'share/{obj.object_name}')
     except Exception as err:
         logger.debug(err)
 
 
-@app.get("/files/aomaker/report/{prefix}")
-async def pull_aomaker_report(prefix: str):
-    get_report('atop', prefix)
-    try:
-        shutil.copytree(
-            f'cache/{prefix}/data/autotest/reports/html',
-            f'tmp/{prefix}/reports/{prefix}'
-        )
-        return {'url': f'/allure-ui/allure-docker-service-ui/projects/{prefix}/reports/{prefix}'}
-    except Exception as err:
-        logger.debug(err)
-
-
-@app.get("/files/locust/report/{prefix}", response_class=HTMLResponse)
-async def pull_locust_report(prefix: str,):
-    resp = minioClient.get_object('atop', f'{prefix}/demo/report.html').data
-    return resp
+@app.post("/files/generate_report/{prefix}")
+async def pull_form_minio(prefix: str, background_tasks: BackgroundTasks):
+    background_tasks.add_task(pull, 'atop', prefix)
+    logger.info(f'Generate_report {prefix} in the background')
+    return {"message": "Generate_report in the background"}
 
 
 @app.post("/files/upload")

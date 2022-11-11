@@ -11,9 +11,13 @@ spec:
     app: files
   ports:
     - protocol: TCP
-      name: http
+      name: controller
       port: 8004
       targetPort: 8004
+    - protocol: TCP
+      name: files
+      port: 8000
+      targetPort: 8006
   clusterIP: None
 
 # deployment for files
@@ -43,6 +47,22 @@ spec:
             runAsUser: 0
             privileged: false
           command:
+            - "python"
+          args:
+            - "-m"
+            - "http.server"
+          ports:
+            - containerPort: 8000
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          volumeMounts:
+            - mountPath: /files/share
+              name: share-volume
+        - name: controller
+          image: {{ .Values.image }}
+          securityContext:
+            runAsUser: 0
+            privileged: false
+          command:
             - "uvicorn"
           args:
             - "src.main:app"
@@ -52,11 +72,9 @@ spec:
           ports:
             - containerPort: 8004
           imagePullPolicy: {{ .Values.imagePullPolicy }}
-          {{- if .Values.allureService }}
           volumeMounts:
-            - name: reports-volume
-              mountPath: /files/tmp
-          {{- end }}
+            - mountPath: /files/share
+              name: share-volume
           env:
             - name: MIDDLEWARE_MINIO_ACCESS_KEY
               valueFrom:
@@ -68,11 +86,8 @@ spec:
                 secretKeyRef:
                   name: middleware-minio
                   key: root-password
-      {{- if .Values.allureService }}
       volumes:
-        - name: reports-volume
-          persistentVolumeClaim:
-            claimName: allure-persistent-volume-claim
-      {{- end }}
+        - name: share-volume
+          emptyDir: {}
 
 
