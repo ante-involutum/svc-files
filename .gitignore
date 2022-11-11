@@ -130,6 +130,5 @@ dmypy.json
 
 # other
 .vscode
-tmp
+share
 report
-cache

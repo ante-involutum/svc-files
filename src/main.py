@@ -38,7 +38,6 @@ def pull(bucket_name: str, prefix: str):
             logger.info(
                 [
                     obj.bucket_name,
-                    obj.object_name.encode('utf-8'),
                     obj.last_modified,
                     obj.etag,
                     obj.size,
@@ -56,6 +55,20 @@ async def pull_form_minio(prefix: str, background_tasks: BackgroundTasks):
     background_tasks.add_task(pull, 'atop', prefix)
     logger.info(f'Generate_report {prefix} in the background')
     return {"message": "Generate_report in the background"}
+
+
+@app.get("/files/report/{type}/{prefix}")
+async def get_report(type: str, prefix: str):
+    if os.path.exists('share/' + prefix):
+        pass
+    else:
+        pull('atop', prefix)
+    logger.info(f'get {prefix} report')
+
+    if type == 'aomaker':
+        return {"url": f"http://tink.test:31695/share/{prefix}/data/autotest/reports/html"}
+    elif type == 'locust':
+        return {"url": f"http://tink.test:31695/share/{prefix}/demo/report.html"}
 
 
 @app.post("/files/upload")
