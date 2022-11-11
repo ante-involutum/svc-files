@@ -5,8 +5,10 @@ from loguru import logger
 from minio import Minio
 from minio.error import InvalidResponseError
 
-from fastapi import FastAPI, UploadFile, BackgroundTasks
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, UploadFile, BackgroundTasks
+
 from src.env import *
 
 
@@ -53,7 +55,7 @@ def get_report(bucket_name: str, prefix: str):
 
 
 @app.get("/files/aomaker/report/{prefix}")
-async def pull_report(prefix: str):
+async def pull_aomaker_report(prefix: str):
     get_report('atop', prefix)
     try:
         shutil.copytree(
@@ -63,6 +65,12 @@ async def pull_report(prefix: str):
         return {'url': f'/allure-ui/allure-docker-service-ui/projects/{prefix}/reports/{prefix}'}
     except Exception as err:
         logger.debug(err)
+
+
+@app.get("/files/locust/report/{prefix}", response_class=HTMLResponse)
+async def pull_locust_report(prefix: str,):
+    resp = minioClient.get_object('atop', f'{prefix}/demo/report.html').data
+    return resp
 
 
 @app.post("/files/upload")
