@@ -1,3 +1,4 @@
+import shutil
 from io import BytesIO
 from loguru import logger
 
@@ -46,17 +47,17 @@ def get_report(bucket_name: str, prefix: str):
                 ]
             )
             minioClient.fget_object(
-                'atop', obj.object_name, f'tmp/{obj.object_name}')
+                'atop', obj.object_name, f'cache/{obj.object_name}')
     except InvalidResponseError as err:
         logger.debug(err)
 
 
-@app.get("/files/report/{prefix}")
-async def pull_report(prefix: str, background_tasks: BackgroundTasks):
-    background_tasks.add_task(
-        get_report,
-        'atop',
-        prefix
+@app.get("/files/aomaker/{prefix}")
+async def pull_report(prefix: str):
+    get_report('atop', prefix)
+    shutil.copytree(
+        f'cache/{prefix}/data/autotest/reports/html',
+        f'tmp/{prefix}/reports/{prefix}'
     )
     return 200
 
