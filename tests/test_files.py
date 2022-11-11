@@ -10,5 +10,5 @@ class TestFiles():
         assert resp.status_code == 200
 
     def test_pull_report(self):
-        resp = self.bs.get('/files/aomaker/199999')
+        resp = self.bs.get('/files/aomaker/report/199999')
         assert resp.status_code == 200
