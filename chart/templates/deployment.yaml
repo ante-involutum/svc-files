@@ -75,18 +75,18 @@ spec:
           env:
             - name: MINIO_ACCESS_KEY
               valueFrom:
-                secretKeyRef:
-                  name: atop-config
+                configMapKeyRef:
+                  name: atop-globe-config
                   key: minio_access_key
             - name: MINIO_HOST
               valueFrom:
-                secretKeyRef:
-                  name: atop-config
+                configMapKeyRef:
+                  name: atop-globe-config
                   key: minio_host
             - name: MINIO_SECRET_KEY
               valueFrom:
-                secretKeyRef:
-                  name: atop-config
+                configMapKeyRef:
+                  name: atop-globe-config
                   key: minio_secret_key
       volumes:
         - name: share-volume
