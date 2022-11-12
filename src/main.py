@@ -21,9 +21,9 @@ app.add_middleware(
 )
 
 minioClient = Minio(
-    f'{MIDDLEWARE_MINIO_SERVICE_HOST}:{MIDDLEWARE_MINIO_SERVICE_PORT}',
-    access_key=MIDDLEWARE_MINIO_ACCESS_KEY,
-    secret_key=MIDDLEWARE_MINIO_SECRET_KEY,
+    MINIO_HOST,
+    access_key=MINIO_ACCESS_KEY,
+    secret_key=MINIO_SECRET_KEY,
     secure=False
 )
 
@@ -65,7 +65,7 @@ async def get_object(prefix: str):
 async def file_upload_to_minio(file: UploadFile):
     byte = BytesIO(await file.read())
     length = len(byte.getvalue())
-    result = minioClient.put_object('jmx', file.filename, byte, length)
+    result = minioClient.put_object('atop', file.filename, byte, length)
     resp = {
         "code": 200,
         'details': {

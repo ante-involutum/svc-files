@@ -1,14 +1,13 @@
-# service for files
 ---
 kind: Service
 apiVersion: v1
 metadata:
-  name: files
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}"
   labels:
-    app: files
+    app: "{{ .Release.Name }}-{{ .Chart.Name }}"
 spec:
   selector:
-    app: files
+    app: "{{ .Release.Name }}-{{ .Chart.Name }}"
   ports:
     - protocol: TCP
       name: controller
@@ -18,25 +17,23 @@ spec:
       name: files
       port: 8006
       targetPort: 8000
-  # clusterIP: None
 
-# deployment for files
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: files
+  name: "{{ .Release.Name }}-{{ .Chart.Name }}"
   labels:
-    app: files
+    app: "{{ .Release.Name }}-{{ .Chart.Name }}"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: files
+      app: "{{ .Release.Name }}-{{ .Chart.Name }}"
   template:
     metadata:
       labels:
-        app: files
+        app: "{{ .Release.Name }}-{{ .Chart.Name }}"
     spec:
       imagePullSecrets:
         - name: regcred
@@ -76,16 +73,21 @@ spec:
             - mountPath: /files/share
               name: share-volume
           env:
-            - name: MIDDLEWARE_MINIO_ACCESS_KEY
+            - name: MINIO_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: middleware-minio
-                  key: root-user
-            - name: MIDDLEWARE_MINIO_SECRET_KEY
+                  name: atop-config
+                  key: minio_access_key
+            - name: MINIO_HOST
               valueFrom:
                 secretKeyRef:
-                  name: middleware-minio
-                  key: root-password
+                  name: atop-config
+                  key: minio_host
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: atop-config
+                  key: minio_secret_key
       volumes:
         - name: share-volume
           emptyDir: {}
