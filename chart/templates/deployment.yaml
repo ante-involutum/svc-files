@@ -16,9 +16,9 @@ spec:
       targetPort: 8004
     - protocol: TCP
       name: files
-      port: 8000
-      targetPort: 8006
-  clusterIP: None
+      port: 8006
+      targetPort: 8000
+  # clusterIP: None
 
 # deployment for files
 ---
@@ -42,7 +42,7 @@ spec:
         - name: regcred
       containers:
         - name: files
-          image: {{ .Values.image }}
+          image: { { .Values.image } }
           securityContext:
             runAsUser: 0
             privileged: false
@@ -53,12 +53,12 @@ spec:
             - "http.server"
           ports:
             - containerPort: 8000
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: { { .Values.imagePullPolicy } }
           volumeMounts:
             - mountPath: /files/share
               name: share-volume
         - name: controller
-          image: {{ .Values.image }}
+          image: { { .Values.image } }
           securityContext:
             runAsUser: 0
             privileged: false
@@ -71,7 +71,7 @@ spec:
             - "--port=8004"
           ports:
             - containerPort: 8004
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: { { .Values.imagePullPolicy } }
           volumeMounts:
             - mountPath: /files/share
               name: share-volume
@@ -89,5 +89,3 @@ spec:
       volumes:
         - name: share-volume
           emptyDir: {}
-
-
