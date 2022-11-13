@@ -87,9 +87,9 @@ async def get_report(type: str, prefix: str):
     logger.info(f'get {prefix} report')
 
     if type == 'aomaker':
-        return {"url": f"http://tink.test:31695/share/{prefix}/data/autotest/reports/html"}
+        return {"url": f"http://{HOST}:{PORT}/share/{prefix}/data/autotest/reports/html"}
     elif type == 'locust':
-        return {"url": f"http://tink.test:31695/share/{prefix}/demo/report.html"}
+        return {"url": f"http://{HOST}:{PORT}/share/{prefix}/demo/report.html"}
 
 
 @app.get("/files/generate_report/{prefix}")

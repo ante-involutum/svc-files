@@ -39,7 +39,7 @@ spec:
         - name: regcred
       containers:
         - name: files
-          image: {{ .Values.image }}
+          image: "{{ .Values.registry }}/{{ .Values.repository }}/{{ .Values.image }}"
           securityContext:
             runAsUser: 0
             privileged: false
@@ -55,7 +55,7 @@ spec:
             - mountPath: /files/share
               name: share-volume
         - name: controller
-          image: {{ .Values.image }}
+          image: "{{ .Values.registry }}/{{ .Values.repository }}/{{ .Values.image }}"
           securityContext:
             runAsUser: 0
             privileged: false
@@ -88,6 +88,16 @@ spec:
                 configMapKeyRef:
                   name: atop-globe-config
                   key: minio_secret_key
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: atop-globe-config
+                  key: port
+            - name: HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: atop-globe-config
+                  key: host
       volumes:
         - name: share-volume
           emptyDir: {}
