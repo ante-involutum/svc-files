@@ -90,6 +90,8 @@ async def get_report(type: str, prefix: str):
         return {"url": f"http://{HOST}:{PORT}/share/{prefix}/data/autotest/reports/html"}
     elif type == 'locust':
         return {"url": f"http://{HOST}:{PORT}/share/{prefix}/demo/report.html"}
+    elif type == 'jmeter':
+        return {"url": f"http://{HOST}:{PORT}/share/{prefix}/demo/report"}
 
 
 @app.get("/files/generate_report/{prefix}")
