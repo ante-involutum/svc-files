@@ -10,14 +10,20 @@ class TestFiles():
     }
 
     def test_upload(self):
-        with open('./README.md', 'r') as f:
-            resp = self.bs.post(
-                '/files/upload', headers=self.header, files={'file': f})
+        resp = self.bs.post(
+            '/files/upload/',
+            headers=self.header,
+            files={'files': open('./README.md', 'r')},
+            params={
+                'bucket_name': 'test'
+            })
         assert resp.status_code == 200
 
     def test_generate_report(self):
-        resp = self.bs.get('/files/generate_report/ca0ac4',
-                           headers=self.header)
+        resp = self.bs.get(
+            '/files/generate_report/ca0ac4',
+            headers=self.header
+        )
         assert resp.status_code == 200
 
     def test_get_report(self):

@@ -1,4 +1,5 @@
 from io import BytesIO
+from typing import List
 from loguru import logger
 
 from minio import Minio
@@ -46,44 +47,50 @@ def pull(bucket_name: str, prefix: str):
                 ]
             )
             minioClient.fget_object(
-                'atop', obj.object_name, f'share/{obj.object_name}')
+                bucket_name, obj.object_name, f'share/{obj.object_name}')
     except Exception as err:
         logger.debug(err)
 
 
 @app.get("/files/")
-async def get_object(prefix: str):
+async def get_object(bucket_name: str, prefix: str):
     try:
-        data = minioClient.get_object('atop', prefix)
+        data = minioClient.get_object(bucket_name, prefix)
         return data.data
     except InvalidResponseError as e:
         logger.debug(e)
         raise HTTPException(status_code=e._code, detail=e._body)
 
 
-@app.post("/files/upload")
-async def file_upload_to_minio(file: UploadFile):
-    byte = BytesIO(await file.read())
-    length = len(byte.getvalue())
-    result = minioClient.put_object('atop', file.filename, byte, length)
-    resp = {
-        "code": 200,
-        'details': {
+@app.post("/files/upload/")
+async def file_upload_to_minio(bucket_name: str, files: List[UploadFile]):
+
+    details = []
+
+    for file in files:
+        byte = BytesIO(await file.read())
+        length = len(byte.getvalue())
+        result = minioClient.put_object(
+            bucket_name, file.filename, byte, length)
+        details.append({
             'bucket_name': result.bucket_name,
             'object_name': result.object_name,
             "etag": result.etag
-        },
+        })
+    resp = {
+        "code": 200,
+        'details': details,
         "message": "success"
     }
     return resp
 
 
-@app.get("/files/report/{type}/{prefix}")
-async def get_report(type: str, prefix: str):
+@app.get("/files/report/{bucket_name}/{type}/{prefix}")
+async def get_report(bucket_name: str, type: str, prefix: str):
     if os.path.exists('share/' + prefix):
         pass
     else:
-        pull('atop', prefix)
+        pull(bucket_name, prefix)
     logger.info(f'get {prefix} report')
 
     if type == 'aomaker':
@@ -94,8 +101,8 @@ async def get_report(type: str, prefix: str):
         return {"url": f"http://{HOST}:{PORT}/share/{prefix}/demo/report"}
 
 
-@app.get("/files/generate_report/{prefix}")
-async def pull_form_minio(prefix: str, background_tasks: BackgroundTasks):
-    background_tasks.add_task(pull, 'atop', prefix)
+@app.get("/files/generate_report/{bucket_name}/{prefix}")
+async def pull_form_minio(bucket_name: str, prefix: str, background_tasks: BackgroundTasks):
+    background_tasks.add_task(pull, bucket_name, prefix)
     logger.info(f'Generate_report {prefix} in the background')
     return {"message": "Generate report in the background"}
