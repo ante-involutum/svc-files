@@ -21,13 +21,13 @@ class TestFiles():
 
     def test_generate_report(self):
         resp = self.bs.get(
-            '/files/generate_report/ca0ac4',
+            '/files/generate_report/result/db95fd',
             headers=self.header
         )
         assert resp.status_code == 200
 
     def test_get_report(self):
-        resp = self.bs.get('/files/report/aomaker/213ef9', headers=self.header)
+        resp = self.bs.get('/files/report/result/jmeter/db95fd', headers=self.header)
         assert resp.status_code == 200
 
     def test_get_object(self):
