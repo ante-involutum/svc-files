@@ -1,4 +1,3 @@
-import json
 import pytest
 
 
@@ -27,14 +26,16 @@ class TestFiles():
         assert resp.status_code == 200
 
     def test_get_report(self):
-        resp = self.bs.get('/files/report/result/jmeter/db95fd', headers=self.header)
+        resp = self.bs.get(
+            '/files/report/result/jmeter/db95fd', headers=self.header)
         assert resp.status_code == 200
 
     def test_get_object(self):
         resp = self.bs.get(
             '/files/',
             params={
-                "prefix": "28b192/data/autotest/reports/html/widgets/summary.json"
+                "prefix": "df9c4d/demo/report/test.jtl",
+                'bucket_name': 'result'
             },
             headers=self.header)
         assert resp.status_code == 200
