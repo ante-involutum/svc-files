@@ -1,3 +1,4 @@
+import shutil
 from io import BytesIO
 from typing import List
 from loguru import logger
@@ -31,23 +32,28 @@ minioClient = Minio(
 
 def pull(bucket_name: str, prefix: str):
     try:
-        objects = minioClient.list_objects(
+        objects = list(minioClient.list_objects(
             bucket_name,
             prefix=prefix,
             recursive=True
-        )
-        for obj in objects:
-            logger.info(
-                [
-                    obj.bucket_name,
-                    obj.last_modified,
-                    obj.etag,
-                    obj.size,
-                    obj.content_type
-                ]
-            )
-            minioClient.fget_object(
-                bucket_name, obj.object_name, f'share/{obj.object_name}')
+        ))
+
+        if len(objects) == 0:
+            logger.info(f'{prefix} not in {bucket_name} bucket')
+            shutil.copytree('404', f'share/{prefix}/data/autotest/reports')
+        else:
+            for obj in objects:
+                logger.info(
+                    [
+                        obj.bucket_name,
+                        obj.last_modified,
+                        obj.etag,
+                        obj.size,
+                        obj.content_type
+                    ]
+                )
+                minioClient.fget_object(
+                    bucket_name, obj.object_name, f'share/{obj.object_name}')
     except Exception as err:
         logger.debug(err)
 
@@ -87,10 +93,11 @@ async def file_upload_to_minio(bucket_name: str, files: List[UploadFile]):
 
 @app.get("/files/report/{bucket_name}/{type}/{prefix}")
 async def get_report(bucket_name: str, type: str, prefix: str):
-    if os.path.exists('share/' + prefix):
-        pass
+    if os.path.exists(f'share/{prefix}'):
+        shutil.rmtree(f'share/{prefix}', ignore_errors=True)
     else:
-        pull(bucket_name, prefix)
+        pass
+    pull(bucket_name, prefix)
     logger.info(f'get {prefix} report')
 
     if type == 'aomaker':
