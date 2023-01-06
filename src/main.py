@@ -40,7 +40,7 @@ def pull(bucket_name: str, prefix: str):
 
         if len(objects) == 0:
             logger.info(f'{prefix} not in {bucket_name} bucket')
-            shutil.copytree('404', f'share/{prefix}/data/autotest/reports')
+            shutil.copytree('404', f'share/{prefix}/data/autotest/reports/html')
         else:
             for obj in objects:
                 logger.info(
