@@ -7,10 +7,11 @@ from minio import Minio
 from minio.error import S3Error
 
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, HTTPException, UploadFile, BackgroundTasks
+from fastapi import FastAPI, Request, UploadFile, BackgroundTasks
+from fastapi.responses import JSONResponse
 
 from src.env import *
-
+from src.exceptions import FilesException
 
 app = FastAPI(name="files")
 
@@ -30,6 +31,18 @@ minioClient = Minio(
 )
 
 
+@app.exception_handler(FilesException)
+async def files_exception_handler(request: Request, exc: FilesException):
+    return JSONResponse(
+        status_code=200,
+        content={
+            'code': exc.code,
+            'detail': exc.detail,
+            'message': exc.message
+        },
+    )
+
+
 def pull(bucket_name: str, prefix: str):
     try:
         objects = list(minioClient.list_objects(
@@ -40,7 +53,10 @@ def pull(bucket_name: str, prefix: str):
 
         if len(objects) == 0:
             logger.info(f'{prefix} not in {bucket_name} bucket')
-            shutil.copytree('404', f'share/{prefix}/data/autotest/reports/html')
+            shutil.copytree(
+                '404',
+                f'share/{prefix}/data/autotest/reports/html'
+            )
         else:
             for obj in objects:
                 logger.info(
@@ -62,12 +78,15 @@ def pull(bucket_name: str, prefix: str):
 async def get_object(bucket_name: str, prefix: str):
     try:
         data = minioClient.get_object(bucket_name, prefix)
-        return data.data
+        detail = {'code': 0, 'detail': data.data, 'message': 'success'}
+        return detail
     except S3Error as e:
         logger.debug(e)
-        if e.code == 'NoSuchKey':
-            detail = {'code': -1, 'message': e.message}
-            raise HTTPException(status_code=200, detail=detail)
+        raise FilesException(
+            code=-1,
+            detail=[],
+            message=e.message
+        )
 
 
 @app.post("/files/upload/")
@@ -86,7 +105,7 @@ async def file_upload_to_minio(bucket_name: str, files: List[UploadFile]):
             "etag": result.etag
         })
     resp = {
-        "code": 200,
+        "code": 0,
         'details': details,
         "message": "success"
     }
