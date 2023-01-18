@@ -4,7 +4,7 @@ from typing import List
 from loguru import logger
 
 from minio import Minio
-from minio.error import InvalidResponseError
+from minio.error import S3Error
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, UploadFile, BackgroundTasks
@@ -63,9 +63,11 @@ async def get_object(bucket_name: str, prefix: str):
     try:
         data = minioClient.get_object(bucket_name, prefix)
         return data.data
-    except InvalidResponseError as e:
+    except S3Error as e:
         logger.debug(e)
-        raise HTTPException(status_code=e._code, detail=e._body)
+        if e.code == 'NoSuchKey':
+            detail = {'code': -1, 'message': e.message}
+            raise HTTPException(status_code=200, detail=detail)
 
 
 @app.post("/files/upload/")
