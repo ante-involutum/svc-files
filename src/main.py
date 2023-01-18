@@ -84,7 +84,7 @@ async def get_object(bucket_name: str, prefix: str):
         logger.debug(e)
         raise FilesException(
             code=-1,
-            detail=[],
+            detail={},
             message=e.message
         )
 
