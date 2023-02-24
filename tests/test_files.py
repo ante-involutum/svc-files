@@ -27,7 +27,7 @@ class TestFiles():
 
     def test_get_report(self):
         resp = self.bs.get(
-            '/files/report/result/jmeter/db95fd', headers=self.header)
+            '/files/report/result/aomaker/lunz864bd169-4647-44cc-a20d-b5fbdfcee3e7', headers=self.header)
         assert resp.status_code == 200
 
     def test_get_object(self):

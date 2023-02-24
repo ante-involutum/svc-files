@@ -1,0 +1,54 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+anyio = "==3.6.2"
+asgiref = "==3.5.2"
+attrs = "==22.1.0"
+autopep8 = "==1.6.0"
+certifi = "==2022.9.24"
+charset-normalizer = "==2.1.1"
+click = "==8.1.3"
+fastapi = "==0.78.0"
+h11 = "==0.14.0"
+httptools = "==0.5.0"
+idna = "==3.4"
+iniconfig = "==1.1.1"
+loguru = "==0.6.0"
+minio = "==7.1.12"
+packaging = "==21.3"
+pluggy = "==1.0.0"
+py = "==1.11.0"
+pycodestyle = "==2.9.1"
+pydantic = "==1.10.2"
+pyparsing = "==3.0.9"
+pytest = "==7.1.2"
+python-dotenv = "==0.21.0"
+python-multipart = "==0.0.5"
+pyyaml = "==6.0"
+requests = "==2.28.1"
+requests-toolbelt = "==0.9.1"
+six = "==1.16.0"
+sniffio = "==1.3.0"
+starlette = "==0.19.1"
+toml = "==0.10.2"
+tomli = "==2.0.1"
+typing-extensions = "==4.4.0"
+urllib3 = "==1.26.12"
+uvicorn = "==0.17.6"
+uvloop = "==0.17.0"
+watchgod = "==0.8.2"
+websockets = "==10.4"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
+
+[scripts]
+chart = "sh scripts/push-chart.sh"
+dev = "docker buildx build -f Dockerfile --platform linux/amd64 -t dockerhub.qingcloud.com/qingtest/files:dev-1.0 . --push"
+test = "docker buildx build -f Dockerfile --platform linux/amd64 -t dockerhub.qingcloud.com/qingtest/files:test-1.0 . --push"
+production = "docker buildx build -f Dockerfile --platform linux/amd64 -t dockerhub.qingcloud.com/qingtest/files:1.0 . --push"
