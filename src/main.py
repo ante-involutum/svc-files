@@ -6,9 +6,9 @@ from loguru import logger
 from minio import Minio
 from minio.error import S3Error
 
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request, UploadFile, BackgroundTasks
-from fastapi.responses import JSONResponse
 
 from src.env import *
 from src.exceptions import FilesException
@@ -59,17 +59,11 @@ def pull(bucket_name: str, prefix: str):
             )
         else:
             for obj in objects:
-                logger.info(
-                    [
-                        obj.bucket_name,
-                        obj.last_modified,
-                        obj.etag,
-                        obj.size,
-                        obj.content_type
-                    ]
-                )
                 minioClient.fget_object(
-                    bucket_name, obj.object_name, f'share/{obj.object_name}')
+                    bucket_name,
+                    obj.object_name,
+                    f'share/{obj.object_name}'
+                )
     except Exception as err:
         logger.debug(err)
 
@@ -98,12 +92,14 @@ async def file_upload_to_minio(bucket_name: str, files: List[UploadFile]):
         byte = BytesIO(await file.read())
         length = len(byte.getvalue())
         result = minioClient.put_object(
-            bucket_name, file.filename, byte, length)
+            bucket_name, file.filename, byte, length
+        )
         details.append({
             'bucket_name': result.bucket_name,
             'object_name': result.object_name,
             "etag": result.etag
         })
+        logger.info(details)
     resp = {
         "code": 0,
         'details': details,
