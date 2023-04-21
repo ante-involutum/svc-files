@@ -119,11 +119,8 @@ async def get_report(bucket_name: str, type: str, prefix: str):
 
     if type == 'aomaker':
         return {"url": f"http://{HOST}:{PORT}/share/{prefix}/data/autotest/reports/html"}
-    elif type == 'locust':
-        return {"url": f"http://{HOST}:{PORT}/share/{prefix}/demo/report.html"}
-    elif type == 'jmeter':
-        return {"url": f"http://{HOST}:{PORT}/share/{prefix}/demo/report"}
-
+    elif type == 'hatbox':
+        return {"url": f"http://{HOST}:{PORT}/share/{prefix}/hatbox/Log/report/pytest_html"}
 
 @app.get("/files/generate_report/{bucket_name}/{prefix}")
 async def pull_form_minio(bucket_name: str, prefix: str, background_tasks: BackgroundTasks):
