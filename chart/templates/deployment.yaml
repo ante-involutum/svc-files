@@ -104,4 +104,6 @@ spec:
                   key: host
       volumes:
         - name: share-volume
-          emptyDir: {}
+          # emptyDir: {}
+          hostPath:
+            path: /atop/share

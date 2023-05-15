@@ -111,11 +111,10 @@ async def file_upload_to_minio(bucket_name: str, files: List[UploadFile]):
 @app.get("/files/report/{bucket_name}/{type}/{prefix}")
 async def get_report(bucket_name: str, type: str, prefix: str):
     if os.path.exists(f'share/{prefix}'):
-        shutil.rmtree(f'share/{prefix}', ignore_errors=True)
-    else:
         pass
-    pull(bucket_name, prefix)
-    logger.info(f'get {prefix} report')
+    else:
+        pull(bucket_name, prefix)
+        logger.info(f'get {prefix} report')
 
     if type == 'aomaker':
         return {"url": f"http://{HOST}:{PORT}/share/{prefix}/data/autotest/reports/html"}
