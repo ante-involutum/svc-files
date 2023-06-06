@@ -145,9 +145,9 @@ async def get_report(bucket_name: str, type: str, prefix: str):
         logger.info(f'get {prefix} report')
 
     if type == 'aomaker':
-        return {"url": f"http://{HOST}:{PORT}/share/{prefix}/data/autotest/reports/html"}
+        return {"url": f"http://{HOST}:{PORT}/{ENV}/share/{prefix}/data/autotest/reports/html"}
     elif type == 'hatbox':
-        return {"url": f"http://{HOST}:{PORT}/share/{prefix}/hatbox/Log/report/pytest_html"}
+        return {"url": f"http://{HOST}:{PORT}/{ENV}/share/{prefix}/hatbox/Log/report/pytest_html"}
 
 
 @app.get("/files/v1.1")
