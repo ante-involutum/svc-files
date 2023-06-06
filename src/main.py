@@ -224,7 +224,7 @@ async def get_report_v1(report: Report):
                     obj.object_name,
                     f'share/{obj.object_name}'
                 )
-        return {"url": f"http://{HOST}:{PORT}/share/{prefix}{report.path}"}
+        return {"url": f"http://{HOST}:{PORT}/{ENV}/share/{prefix}{report.path}"}
     except Exception as e:
         logger.error(traceback.format_exc())
         raise FilesException(code=-1, detail={}, message='内部错误')

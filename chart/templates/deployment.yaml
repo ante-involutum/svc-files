@@ -102,6 +102,11 @@ spec:
                 configMapKeyRef:
                   name: atop-globe-config
                   key: host
+            - name: ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: atop-globe-config
+                  key: env
       volumes:
         - name: share-volume
           # emptyDir: {}
