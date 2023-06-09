@@ -1,5 +1,3 @@
-registry: docker.io
-repository: mx2542
-image: "files:latest"
-imagePullPolicy: Always
-private: false
+registry: dockerhub.qingcloud.com
+repository: qingtest
+image: files:1.4
