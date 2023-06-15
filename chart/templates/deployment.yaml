@@ -50,7 +50,7 @@ spec:
             - "http.server"
           ports:
             - containerPort: 8000
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: Always
           volumeMounts:
             - mountPath: /files/share
               name: share-volume
