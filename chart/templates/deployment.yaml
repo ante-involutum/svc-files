@@ -38,7 +38,7 @@ spec:
       imagePullSecrets:
         - name: regcred
       containers:
-        - name: files
+        - name: reports
           image: "{{ .Values.registry }}/{{ .Values.repository }}/{{ .Values.image }}"
           securityContext:
             runAsUser: 0
@@ -54,7 +54,7 @@ spec:
           volumeMounts:
             - mountPath: /files/share
               name: share-volume
-        - name: controller
+        - name: files
           image: "{{ .Values.registry }}/{{ .Values.repository }}/{{ .Values.image }}"
           securityContext:
             runAsUser: 0
@@ -106,7 +106,10 @@ spec:
                   name: atop-globe-config
                   key: env
       volumes:
+        # - name: share-volume
+        #   # emptyDir: {}
+        #   hostPath:
+        #     path: /data/atop/share
         - name: share-volume
-          # emptyDir: {}
-          hostPath:
-            path: /data/atop/share
+          persistentVolumeClaim:
+            claimName: "data-{{ .Release.Name }}-{{ .Chart.Name }}"
