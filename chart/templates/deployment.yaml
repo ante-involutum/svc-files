@@ -107,5 +107,7 @@ spec:
                   key: env
       volumes:
         - name: share-volume
-          persistentVolumeClaim:
-            claimName: data-atop-reports
+          # persistentVolumeClaim:
+          #   claimName: data-atop-reports
+          hostPath:
+            path: /data/atop/share
