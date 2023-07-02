@@ -106,10 +106,6 @@ spec:
                   name: atop-globe-config
                   key: env
       volumes:
-        # - name: share-volume
-        #   # emptyDir: {}
-        #   hostPath:
-        #     path: /data/atop/share
         - name: share-volume
           persistentVolumeClaim:
-            claimName: "data-{{ .Release.Name }}-{{ .Chart.Name }}"
+            claimName: data-atop-reports
