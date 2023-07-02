@@ -52,7 +52,7 @@ spec:
             - containerPort: 8000
           imagePullPolicy: Always
           volumeMounts:
-            - mountPath: /files/report
+            - mountPath: /files/share
               name: share-volume
         - name: files
           image: "{{ .Values.registry }}/{{ .Values.repository }}/{{ .Values.image }}:{{ .Chart.AppVersion }}"
@@ -72,7 +72,7 @@ spec:
             - containerPort: 8004
           imagePullPolicy: Always
           volumeMounts:
-            - mountPath: /files/report
+            - mountPath: /files/share
               name: share-volume
           env:
             - name: MINIO_ACCESS_KEY
