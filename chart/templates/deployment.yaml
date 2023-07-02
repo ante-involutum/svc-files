@@ -39,7 +39,7 @@ spec:
         - name: regcred
       containers:
         - name: reports
-          image: "{{ .Values.registry }}/{{ .Values.repository }}/{{ .Values.image }}"
+          image: "{{ .Values.registry }}/{{ .Values.repository }}/{{ .Values.image }}:{{ .Chart.AppVersion }}"
           securityContext:
             runAsUser: 0
             privileged: false
@@ -52,10 +52,10 @@ spec:
             - containerPort: 8000
           imagePullPolicy: Always
           volumeMounts:
-            - mountPath: /files/share
+            - mountPath: /files/report
               name: share-volume
         - name: files
-          image: "{{ .Values.registry }}/{{ .Values.repository }}/{{ .Values.image }}"
+          image: "{{ .Values.registry }}/{{ .Values.repository }}/{{ .Values.image }}:{{ .Chart.AppVersion }}"
           securityContext:
             runAsUser: 0
             privileged: false
@@ -72,7 +72,7 @@ spec:
             - containerPort: 8004
           imagePullPolicy: Always
           volumeMounts:
-            - mountPath: /files/share
+            - mountPath: /files/report
               name: share-volume
           env:
             - name: MINIO_ACCESS_KEY
