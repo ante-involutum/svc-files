@@ -232,7 +232,7 @@ async def get_report_v1(report: Report, background_tasks: BackgroundTasks):
 
     try:
         prefix = f'{report.type}-{report.uid}'
-        m = {"url": f"http://{HOST}:{PORT}/{ENV}/share/{prefix}{report.path}"}
+        m = {"url": f"http://{HOST}:{PORT}/{ENV}/share/{prefix}{report.path}/index.html"}
 
         if os.path.exists(f'share/{prefix}'):
             m['status'] = 'completed'
