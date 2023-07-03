@@ -63,14 +63,14 @@ minioClient = Minio(
 @app.on_event("startup")
 async def startup_event():
     try:
-        # 删除前60天的文件夹
+        # 删除前30天的文件夹
         current_time = time.time()
         for folder in os.listdir('share'):
             folder_path = os.path.join('share', folder)
             if os.path.isdir(folder_path):
                 modified_time = os.path.getmtime(folder_path)
                 age = current_time - modified_time
-                if age > 60 * 24 * 60 * 60:
+                if age > 30 * 24 * 60 * 60:
                     try:
                         os.removedirs(folder_path)
                         logger.info(f"已删除文件夹: {folder_path}")
