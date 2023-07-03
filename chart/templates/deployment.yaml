@@ -10,13 +10,13 @@ spec:
     app: "{{ .Release.Name }}-{{ .Chart.Name }}"
   ports:
     - protocol: TCP
-      name: controller
+      name: files
       port: 8004
       targetPort: 8004
     - protocol: TCP
-      name: files
+      name: reports
       port: 8006
-      targetPort: 8000
+      targetPort: 8006
 
 ---
 apiVersion: apps/v1
@@ -44,12 +44,16 @@ spec:
             runAsUser: 0
             privileged: false
           command:
-            - "python"
+            - "uvicorn"
           args:
-            - "-m"
-            - "http.server"
+            - "src.fs:app"
+            - "--reload"
+            - "--host=0.0.0.0"
+            - "--port=8006"
+            - "--debug"
+            - "--log-config=uvicorn_config.json"
           ports:
-            - containerPort: 8000
+            - containerPort: 8006
           imagePullPolicy: Always
           volumeMounts:
             - mountPath: /files/share
@@ -107,7 +111,5 @@ spec:
                   key: env
       volumes:
         - name: share-volume
-          # persistentVolumeClaim:
-          #   claimName: data-atop-reports
-          hostPath:
-            path: /data/atop/share
+          persistentVolumeClaim:
+            claimName: data-atop-reports
