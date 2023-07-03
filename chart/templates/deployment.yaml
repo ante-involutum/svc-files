@@ -13,10 +13,6 @@ spec:
       name: files
       port: 8004
       targetPort: 8004
-    - protocol: TCP
-      name: reports
-      port: 8006
-      targetPort: 8006
 
 ---
 apiVersion: apps/v1
@@ -38,26 +34,6 @@ spec:
       imagePullSecrets:
         - name: regcred
       containers:
-        - name: reports
-          image: "{{ .Values.registry }}/{{ .Values.repository }}/{{ .Values.image }}:{{ .Chart.AppVersion }}"
-          securityContext:
-            runAsUser: 0
-            privileged: false
-          command:
-            - "uvicorn"
-          args:
-            - "src.fs:app"
-            - "--reload"
-            - "--host=0.0.0.0"
-            - "--port=8006"
-            - "--debug"
-            - "--log-config=uvicorn_config.json"
-          ports:
-            - containerPort: 8006
-          imagePullPolicy: Always
-          volumeMounts:
-            - mountPath: /files/share
-              name: share-volume
         - name: files
           image: "{{ .Values.registry }}/{{ .Values.repository }}/{{ .Values.image }}:{{ .Chart.AppVersion }}"
           securityContext:
