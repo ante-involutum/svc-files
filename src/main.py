@@ -176,8 +176,7 @@ async def get_report(bucket_name: str, type: str, prefix: str, background_tasks:
         if os.path.exists(f'share/{prefix}'):
             m[type]['status'] = 'completed'
         else:
-            background_tasks.add_task(
-                pull, bucket_name, prefix, message="generating report")
+            background_tasks.add_task(pull, bucket_name, prefix)
             logger.info("generating repor")
             m[type]['status'] = 'generating'
         return m[type]
@@ -238,8 +237,7 @@ async def get_report_v1(report: Report, background_tasks: BackgroundTasks):
         if os.path.exists(f'share/{prefix}'):
             m['status'] = 'completed'
         else:
-            background_tasks.add_task(
-                pull, 'result', prefix, message="generating report")
+            background_tasks.add_task(pull, 'result', prefix)
             logger.info("generating repor")
             m['status'] = 'generating'
         return m
