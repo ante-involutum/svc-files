@@ -1,13 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <script src="https://kit.fontawesome.com/4b9ba14b0f.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" type="text/css" href="styles.css">
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Not Found</title>
+    <style>
+        .container {
+            text-align: center;
+            margin-top: 200px;
+        }
 
+        h1 {
+            font-size: 100px;
+            color: #333;
+        }
+
+        p {
+            font-size: 24px;
+            color: #777;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        a:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
 <body>
-    <div class="mainbox">
-        <div class="err">4</div>
-        <i class="far fa-question-circle fa-spin"></i>
-        <div class="err2">4</div>
-        <div class="msg">自动化测试运行失败?<p>请返回 <a href="#">平台</a> 查看详情.</p>
-        </div>
+    <div class="container">
+        <h1>404</h1>
+        <p>Oops! The test report currently does not exist. It may be being generated, please refresh the page later</p>
+        <a href="/hello">Go to Homepage</a>
     </div>
+</body>
+</html>

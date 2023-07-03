@@ -1,4 +1,5 @@
 import shutil
+import time
 import traceback
 from io import BytesIO
 from typing import List
@@ -10,6 +11,15 @@ from minio.error import S3Error
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request, UploadFile
+
+from fastapi import FastAPI, Request, BackgroundTasks
+from starlette.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware import Middleware
+from starlette.middleware.errors import ServerErrorMiddleware
+from starlette.responses import FileResponse, HTMLResponse
 
 from src.env import *
 from src.model import Report
@@ -26,6 +36,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+middleware = [
+    Middleware(ServerErrorMiddleware, handlers={
+               StarletteHTTPException: "custom_error_handler"})
+]
+app.middleware_stack = middleware
+
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_error_handler(request: Request, exc: StarletteHTTPException):
+    return FileResponse('404/index.html')
+
+app.mount("/share", StaticFiles(directory="share"), name="share")
+app.mount("/404", StaticFiles(directory="404"), name="404")
+
+
 minioClient = Minio(
     MINIO_HOST,
     access_key=MINIO_ACCESS_KEY,
@@ -37,24 +63,19 @@ minioClient = Minio(
 @app.on_event("startup")
 async def startup_event():
     try:
-        objects = list(minioClient.list_objects(
-            'templates',
-            prefix='404',
-            recursive=True
-        ))
-        if len(objects) != 2:
-            logger.info('404 html not exist in tempplates bucket')
-            minioClient.fput_object(
-                'templates',
-                '404/index.html',
-                '404/index.html'
-            )
-            minioClient.fput_object(
-                'templates',
-                '404/styles.css',
-                '404/styles.css'
-            )
-            logger.info('push 404 html to tempplates bucket')
+        # 删除前60天的文件夹
+        current_time = time.time()
+        for folder in os.listdir('share'):
+            folder_path = os.path.join('share', folder)
+            if os.path.isdir(folder_path):
+                modified_time = os.path.getmtime(folder_path)
+                age = current_time - modified_time
+                if age > 60 * 24 * 60 * 60:
+                    try:
+                        os.removedirs(folder_path)
+                        logger.info(f"已删除文件夹: {folder_path}")
+                    except OSError as e:
+                        logger.info(f"无法删除文件夹: {folder_path}，错误信息: {e}")
     except Exception as e:
         logger.error(traceback.format_exc())
 
@@ -81,10 +102,6 @@ def pull(bucket_name: str, prefix: str):
 
         if len(objects) == 0:
             logger.info(f'{prefix} not in {bucket_name} bucket')
-            shutil.copytree(
-                '404',
-                f'share/{prefix}/data/autotest/reports/html'
-            )
         else:
             for obj in objects:
                 minioClient.fget_object(
@@ -92,8 +109,15 @@ def pull(bucket_name: str, prefix: str):
                     obj.object_name,
                     f'share/{obj.object_name}'
                 )
+            logger.info(f'get {prefix} done')
+
     except Exception as err:
         logger.debug(err)
+
+
+@app.get("/hello")
+async def root():
+    return {"message": "Hello World"}
 
 
 @app.get("/files/")
@@ -137,17 +161,29 @@ async def upload(bucket_name: str, files: List[UploadFile]):
 
 
 @app.get("/files/report/{bucket_name}/{type}/{prefix}")
-async def get_report(bucket_name: str, type: str, prefix: str):
-    if os.path.exists(f'share/{prefix}'):
-        pass
-    else:
-        pull(bucket_name, prefix)
-        logger.info(f'get {prefix} report')
+async def get_report(bucket_name: str, type: str, prefix: str, background_tasks: BackgroundTasks):
 
-    if type == 'aomaker':
-        return {"url": f"http://{HOST}:{PORT}/{ENV}/share/{prefix}/data/autotest/reports/html/index.html"}
-    elif type == 'hatbox':
-        return {"url": f"http://{HOST}:{PORT}/{ENV}/share/{prefix}/hatbox/Log/report/pytest_html/index.html"}
+    try:
+        m = {
+            'hatbox': {
+                'url': f"http://{HOST}:{PORT}/{ENV}/share/{prefix}/hatbox/Log/report/pytest_html/index.html"
+            },
+            'aomaker': {
+                "url": f"http://{HOST}:{PORT}/{ENV}/share/{prefix}/data/autotest/reports/html/index.html"
+            }
+        }
+
+        if os.path.exists(f'share/{prefix}'):
+            m[type]['status'] = 'completed'
+        else:
+            background_tasks.add_task(
+                pull, bucket_name, prefix, message="generating report")
+            logger.info("generating repor")
+            m[type]['status'] = 'generating'
+        return m[type]
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        raise FilesException(code=-1, detail={}, message='内部错误')
 
 
 @app.get("/files/v1.1")
@@ -193,38 +229,20 @@ async def upload_to_minio(bucket_name: str, files: List[UploadFile]):
 
 
 @app.get("/files/v1.1/report")
-async def get_report_v1(report: Report):
-    prefix = f'{report.type}-{report.uid}'
-    if os.path.exists(f'share/{prefix}'):
-        shutil.rmtree(f'share/{prefix}', ignore_errors=True)
-    else:
-        pass
+async def get_report_v1(report: Report, background_tasks: BackgroundTasks):
 
     try:
-        objects = list(minioClient.list_objects(
-            'result',
-            prefix=prefix,
-            recursive=True
-        ))
-        if len(objects) == 0:
-            minioClient.fget_object(
-                'templates',
-                '404/index.html',
-                f'share/{prefix}/{report.path}/index.html'
-            )
-            minioClient.fget_object(
-                'templates',
-                '404/styles.css',
-                f'share/{prefix}/{report.path}/styles.css'
-            )
+        prefix = f'{report.type}-{report.uid}'
+        m = {"url": f"http://{HOST}:{PORT}/{ENV}/share/{prefix}{report.path}"}
+
+        if os.path.exists(f'share/{prefix}'):
+            m['status'] = 'completed'
         else:
-            for obj in objects:
-                minioClient.fget_object(
-                    'result',
-                    obj.object_name,
-                    f'share/{obj.object_name}'
-                )
-        return {"url": f"http://{HOST}:{PORT}/{ENV}/share/{prefix}{report.path}"}
+            background_tasks.add_task(
+                pull, 'result', prefix, message="generating report")
+            logger.info("generating repor")
+            m['status'] = 'generating'
+        return m
     except Exception as e:
         logger.error(traceback.format_exc())
         raise FilesException(code=-1, detail={}, message='内部错误')
