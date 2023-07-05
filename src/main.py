@@ -60,6 +60,9 @@ minioClient = Minio(
 )
 
 
+background_tasks_status = {}
+
+
 @app.on_event("startup")
 async def startup_event():
     try:
@@ -103,6 +106,7 @@ def pull(bucket_name: str, prefix: str):
         if len(objects) == 0:
             logger.info(f'{prefix} not in {bucket_name} bucket')
         else:
+            background_tasks_status[prefix] = {'status': 'generating'}
             for obj in objects:
                 minioClient.fget_object(
                     bucket_name,
@@ -110,6 +114,7 @@ def pull(bucket_name: str, prefix: str):
                     f'share/{obj.object_name}'
                 )
             logger.info(f'get {prefix} done')
+            background_tasks_status[prefix] = {'status': 'completed'}
 
     except Exception as err:
         logger.debug(err)
@@ -183,6 +188,11 @@ async def get_report(bucket_name: str, type: str, prefix: str, background_tasks:
     except Exception as e:
         logger.error(traceback.format_exc())
         raise FilesException(code=-1, detail={}, message='内部错误')
+
+
+@app.get("/files/tasks")
+async def get_background_tasks_status():
+    return background_tasks_status
 
 
 @app.get("/files/v1.1")
