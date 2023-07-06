@@ -130,6 +130,7 @@ async def get_object(bucket_name: str, prefix: str):
     try:
         data = minioClient.get_object(bucket_name, prefix)
         detail = {'code': 0, 'detail': data.data, 'message': 'success'}
+        logger.info(detail)
         return detail
     except S3Error as e:
         logger.debug(e)
@@ -184,6 +185,7 @@ async def get_report(bucket_name: str, type: str, prefix: str, background_tasks:
             background_tasks.add_task(pull, bucket_name, prefix)
             logger.info("generating repor")
             m[type]['status'] = 'generating'
+        logger.info(m[type])    
         return m[type]
     except Exception as e:
         logger.error(traceback.format_exc())
@@ -192,6 +194,7 @@ async def get_report(bucket_name: str, type: str, prefix: str, background_tasks:
 
 @app.get("/files/tasks")
 async def get_background_tasks_status():
+    logger.info(background_tasks_status)
     return background_tasks_status
 
 
@@ -200,6 +203,7 @@ async def get_object_v1(bucket_name: str, prefix: str):
     try:
         data = minioClient.get_object(bucket_name, prefix)
         detail = {'code': 0, 'detail': data.data, 'message': 'success'}
+        logger.info(detail)
         return detail
     except S3Error as e:
         logger.debug(e)
@@ -250,6 +254,7 @@ async def get_report_v1(report: Report, background_tasks: BackgroundTasks):
             background_tasks.add_task(pull, 'result', prefix)
             logger.info("generating repor")
             m['status'] = 'generating'
+        logger.info(m)
         return m
     except Exception as e:
         logger.error(traceback.format_exc())
