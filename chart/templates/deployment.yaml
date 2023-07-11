@@ -70,16 +70,16 @@ spec:
                 configMapKeyRef:
                   name: atop-globe-config
                   key: minio_secret_key
-            - name: PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: atop-globe-config
-                  key: port
             - name: HOST
               valueFrom:
                 configMapKeyRef:
                   name: atop-globe-config
                   key: host
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: atop-globe-config
+                  key: port
             - name: ENV
               valueFrom:
                 configMapKeyRef:
