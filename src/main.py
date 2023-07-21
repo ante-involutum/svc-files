@@ -1,4 +1,3 @@
-import shutil
 import time
 import traceback
 from io import BytesIO
@@ -8,18 +7,17 @@ from loguru import logger
 from minio import Minio
 from minio.error import S3Error
 
+from fastapi import FastAPI
+from fastapi import Request
+from fastapi import BackgroundTasks
+from fastapi import UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, Request, UploadFile
-
-from fastapi import FastAPI, Request, BackgroundTasks
-from starlette.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
-
-from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware import Middleware
+from starlette.responses import FileResponse
+from starlette.staticfiles import StaticFiles
 from starlette.middleware.errors import ServerErrorMiddleware
-from starlette.responses import FileResponse, HTMLResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from src.env import *
 from src.model import Report
@@ -113,10 +111,11 @@ def pull(bucket_name: str, prefix: str):
                     obj.object_name,
                     f'share/{obj.object_name}'
                 )
-            logger.info(f'get {prefix} done')
+            logger.info(f'BackgroundTasks: get {prefix} done')
             background_tasks_status[prefix] = {'status': 'completed'}
 
     except Exception as err:
+        background_tasks_status[prefix] = {'status': 'erro'}
         logger.debug(err)
 
 
@@ -143,59 +142,73 @@ async def get_object(bucket_name: str, prefix: str):
 
 @app.post("/files/upload/")
 async def upload(bucket_name: str, files: List[UploadFile]):
-
-    details = []
-
-    for file in files:
-        byte = BytesIO(await file.read())
-        length = len(byte.getvalue())
-        result = minioClient.put_object(
-            bucket_name, file.filename, byte, length
-        )
-        details.append({
-            'bucket_name': result.bucket_name,
-            'object_name': result.object_name,
-            "etag": result.etag
-        })
-        logger.info(details)
-    resp = {
-        "code": 0,
-        'details': details,
-        "message": "success"
-    }
-    return resp
-
-
-@app.get("/files/report/{bucket_name}/{type}/{prefix}")
-async def get_report(bucket_name: str, type: str, prefix: str, background_tasks: BackgroundTasks):
-
     try:
-        m = {
-            'hatbox': {
-                'url': f"http://{HOST}:{PORT}/{ENV}/share/{prefix}/hatbox/Log/report/pytest_html/index.html"
-            },
-            'aomaker': {
-                "url": f"http://{HOST}:{PORT}/{ENV}/share/{prefix}/data/autotest/reports/html/index.html"
-            }
-        }
+        details = []
 
-        if os.path.exists(f'share/{prefix}'):
-            m[type]['status'] = 'completed'
-        else:
-            background_tasks.add_task(pull, bucket_name, prefix)
-            logger.info("generating repor")
-            m[type]['status'] = 'generating'
-        logger.info(m[type])    
-        return m[type]
+        for file in files:
+            byte = BytesIO(await file.read())
+            length = len(byte.getvalue())
+            result = minioClient.put_object(
+                bucket_name, file.filename, byte, length
+            )
+            details.append({
+                'bucket_name': result.bucket_name,
+                'object_name': result.object_name,
+                "etag": result.etag
+            })
+            logger.info(details)
+        resp = {
+            "code": 0,
+            'details': details,
+            "message": "success"
+        }
+        return resp
     except Exception as e:
         logger.error(traceback.format_exc())
         raise FilesException(code=-1, detail={}, message='内部错误')
 
 
-@app.get("/files/tasks")
-async def get_background_tasks_status():
-    logger.info(background_tasks_status)
-    return background_tasks_status
+@app.get("/files/report/{bucket_name}/{type}/{prefix}")
+async def get_report(bucket_name: str, type: str, prefix: str, background_tasks: BackgroundTasks):
+    try:
+        background_tasks_status[prefix] = {'status': 'notReady'}
+        if os.path.exists(f'share/{prefix}'):
+            dirs = os.listdir(f'share/{prefix}')
+            dirs = sorted(dirs, reverse=True)
+            resp = {
+                'url': '',
+                'status': 'completed'
+            }
+            if type == 'aomaker':
+                resp['url'] = f"http://{HOST}:{PORT}/{ENV}/share/{prefix}/data/autotest/reports/html/index.html"
+            if type == 'hatbox':
+                resp['url'] = f"http://{HOST}:{PORT}/{ENV}/share/{prefix}/{dirs[0]}/hatbox/Log/report/pytest_html/index.html"
+            background_tasks_status[prefix] = {'status': 'completed'}
+            return resp
+        else:
+            logger.info('Test report does not exist, start regeneration')
+            background_tasks.add_task(pull, bucket_name, prefix)
+            resp = {
+                'url': "",
+                'status': 'generating'
+            }
+            logger.info('Test report regeneration completed')
+            return resp
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        background_tasks_status[prefix] = {'status': 'erro'}
+        raise FilesException(code=-1, detail={}, message='内部错误')
+
+
+@app.get("/files/tasks/{prefix}")
+async def get_background_tasks_status(prefix: str):
+    try:
+        logger.info(background_tasks_status)
+        resp = background_tasks_status[prefix]
+        return resp
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        raise FilesException(code=-1, detail={}, message='内部错误')
 
 
 @app.get("/files/v1.1")
@@ -243,19 +256,32 @@ async def upload_to_minio(bucket_name: str, files: List[UploadFile]):
 
 @app.get("/files/v1.1/report")
 async def get_report_v1(report: Report, background_tasks: BackgroundTasks):
-
+    logger.info(report)
     try:
         prefix = f'{report.type}-{report.uid}'
-        m = {"url": f"http://{HOST}:{PORT}/{ENV}/share/{prefix}{report.path}/index.html"}
-
+        background_tasks_status[prefix] = {'status': 'notReady'}
         if os.path.exists(f'share/{prefix}'):
-            m['status'] = 'completed'
+            dirs = os.listdir(f'share/{prefix}')
+            dirs = sorted(dirs, reverse=True)
+            resp = {
+                'url': '',
+                'status': 'completed'
+            }
+            if report.type == 'aomaker':
+                resp['url'] = f"http://{HOST}:{PORT}/{ENV}/share/{prefix}{report.path}/index.html"
+            if report.type == 'hatbox':
+                resp['url'] = f"http://{HOST}:{PORT}/{ENV}/share/{prefix}/{dirs[0]}{report.path}/index.html"
+            background_tasks_status[prefix] = {'status': 'completed'}
+            return resp
         else:
+            logger.info('Test report does not exist, start regeneration')
             background_tasks.add_task(pull, 'result', prefix)
-            logger.info("generating repor")
-            m['status'] = 'generating'
-        logger.info(m)
-        return m
+            resp = {
+                'url': "",
+                'status': 'generating'
+            }
+            logger.info('Test report regeneration completed')
+            return resp
     except Exception as e:
         logger.error(traceback.format_exc())
         raise FilesException(code=-1, detail={}, message='内部错误')
