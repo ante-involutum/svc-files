@@ -1,8 +1,10 @@
 import time
+import shutil
 import traceback
 from io import BytesIO
 from typing import List
 from loguru import logger
+from datetime import datetime
 
 from minio import Minio
 from minio.error import S3Error
@@ -70,13 +72,23 @@ async def startup_event():
             folder_path = os.path.join('share', folder)
             if os.path.isdir(folder_path):
                 modified_time = os.path.getmtime(folder_path)
+                fmt= datetime.fromtimestamp(modified_time).strftime("%Y-%m-%d %H:%M:%S")
+                logger.info(f"最后修改时间: {folder_path} {fmt}")
                 age = current_time - modified_time
-                if age > 30 * 24 * 60 * 60:
+                if age > int(LIFE_CYCLE) * 24 * 60 * 60:
                     try:
-                        os.removedirs(folder_path)
+                        shutil.rmtree(folder_path)
                         logger.info(f"已删除文件夹: {folder_path}")
                     except OSError as e:
                         logger.info(f"无法删除文件夹: {folder_path}，错误信息: {e}")
+    except Exception as e:
+        logger.error(traceback.format_exc())
+
+
+@app.on_event("shutdown")
+def shutdown_event():
+    try:
+        pass
     except Exception as e:
         logger.error(traceback.format_exc())
 
