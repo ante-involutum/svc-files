@@ -66,19 +66,18 @@ background_tasks_status = {}
 @app.on_event("startup")
 async def startup_event():
     try:
-        # 删除前30天的文件夹
         current_time = time.time()
         for folder in os.listdir('share'):
             folder_path = os.path.join('share', folder)
             if os.path.isdir(folder_path):
                 modified_time = os.path.getmtime(folder_path)
                 fmt= datetime.fromtimestamp(modified_time).strftime("%Y-%m-%d %H:%M:%S")
-                logger.info(f"最后修改时间: {folder_path} {fmt}")
+                logger.info(f"{folder_path} 修改时间: {fmt}")
                 age = current_time - modified_time
                 if age > int(LIFE_CYCLE) * 24 * 60 * 60:
                     try:
                         shutil.rmtree(folder_path)
-                        logger.info(f"已删除文件夹: {folder_path}")
+                        logger.info(f"删除文件夹: {folder_path}")
                     except OSError as e:
                         logger.info(f"无法删除文件夹: {folder_path}，错误信息: {e}")
     except Exception as e:
