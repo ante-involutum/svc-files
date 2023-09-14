@@ -1,12 +1,44 @@
+# when sc is manual
+{{- if .Values.nfs }}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: data-atop-reports
 spec:
-  storageClassName: local
   accessModes:
-    - "ReadWriteOnce"
+    - ReadWriteMany
+  storageClassName: manual
+  resources:
+    requests:
+      storage: 100Gi
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "pv-nfs-{{ .Release.Name }}"
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  storageClassName: manual
+  nfs:
+    path: "/data/nfs/{{ .Release.Name }}"
+    server: 172.16.60.12
+{{ else }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-atop-reports
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local
   resources:
     requests:
       storage: 10Gi
 
+{{- end }}
