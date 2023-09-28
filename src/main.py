@@ -66,6 +66,14 @@ background_tasks_status = {}
 @app.on_event("startup")
 async def startup_event():
     try:
+        pass
+    except Exception as e:
+        logger.error(traceback.format_exc())
+
+
+@app.on_event("shutdown")
+def shutdown_event():
+    try:
         current_time = time.time()
         for folder in os.listdir('share'):
             folder_path = os.path.join('share', folder)
@@ -80,14 +88,6 @@ async def startup_event():
                         logger.info(f"删除文件夹: {folder_path}")
                     except OSError as e:
                         logger.info(f"无法删除文件夹: {folder_path}，错误信息: {e}")
-    except Exception as e:
-        logger.error(traceback.format_exc())
-
-
-@app.on_event("shutdown")
-def shutdown_event():
-    try:
-        pass
     except Exception as e:
         logger.error(traceback.format_exc())
 
