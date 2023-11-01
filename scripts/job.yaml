@@ -1,0 +1,60 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: clean-report-files
+spec:
+  schedule: "0 0 1 * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          imagePullSecrets:
+            - name: regcred
+          containers:
+            - name: cleaner
+              image: dockerhub.qingcloud.com/qingtest/files:1.0.9
+              imagePullPolicy: Always
+              command: ["sh", "-c", "python scripts/cleaner.py"]
+              volumeMounts:
+                - mountPath: /minio
+                  name: minio
+                - mountPath: /reports
+                  name: reports
+          restartPolicy: OnFailure
+          volumes:
+            - name: minio
+              persistentVolumeClaim:
+                claimName: data-production-minio
+            - name: reports
+              persistentVolumeClaim:
+                claimName: data-atop-reports
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-test-pod
+spec:
+  imagePullSecrets:
+    - name: regcred
+  containers:
+    - name: cleaner
+      image: dockerhub.qingcloud.com/qingtest/files:1.0.9
+      imagePullPolicy: Always
+      command: ["sh", "-c", "sleep 400000"]
+      volumeMounts:
+        - mountPath: /minio
+          name: minio
+        - mountPath: /reports
+          name: reports
+  restartPolicy: OnFailure
+  volumes:
+    - name: minio
+      persistentVolumeClaim:
+        claimName: data-production-minio
+    - name: reports
+      persistentVolumeClaim:
+        claimName: data-atop-reports
