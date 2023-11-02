@@ -6,7 +6,7 @@ from pprint import pprint
 from datetime import datetime
 
 
-for dir in ['/reports', '/minio/result']:
+for dir in ['/reports']:
     try:
         current_time = time.time()
         for folder in os.listdir(dir):
