@@ -25,8 +25,8 @@ spec:
     - ReadWriteMany
   storageClassName: manual
   nfs:
-    path: "/data/nfs/{{ .Release.Name }}"
-    server: 172.16.60.12
+    path: "/mnt/shared_dir/{{ .Release.Name }}"
+    server: 172.16.60.20
 {{ else }}
 ---
 apiVersion: v1
