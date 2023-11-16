@@ -1,4 +1,4 @@
 registry: dockerhub.qingcloud.com
 repository: qingtest
 image: files
-nfs: false
+storage: local
