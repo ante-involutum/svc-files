@@ -90,4 +90,4 @@ spec:
       volumes:
         - name: share-volume
           persistentVolumeClaim:
-            claimName: data-atop-reports
+            claimName: "{{ .Release.Name }}-minio"

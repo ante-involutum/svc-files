@@ -48,7 +48,8 @@ app.middleware_stack = middleware
 async def custom_error_handler(request: Request, exc: StarletteHTTPException):
     return FileResponse('404/index.html')
 
-app.mount("/share", StaticFiles(directory="share"), name="share")
+
+app.mount("/share", StaticFiles(directory="share/result"), name="share")
 app.mount("/404", StaticFiles(directory="404"), name="404")
 
 
@@ -75,8 +76,8 @@ async def startup_event():
 def shutdown_event():
     try:
         current_time = time.time()
-        for folder in os.listdir('share'):
-            folder_path = os.path.join('share', folder)
+        for folder in os.listdir('share/result'):
+            folder_path = os.path.join('share/result', folder)
             if os.path.isdir(folder_path):
                 modified_time = os.path.getmtime(folder_path)
                 fmt= datetime.fromtimestamp(modified_time).strftime("%Y-%m-%d %H:%M:%S")
@@ -120,7 +121,7 @@ def pull(bucket_name: str, prefix: str):
                 minioClient.fget_object(
                     bucket_name,
                     obj.object_name,
-                    f'share/{obj.object_name}'
+                    f'share/result/{obj.object_name}'
                 )
             logger.info(f'BackgroundTasks: get {prefix} done')
             background_tasks_status[prefix] = {'status': 'completed'}
@@ -183,8 +184,8 @@ async def upload(bucket_name: str, files: List[UploadFile]):
 async def get_report(bucket_name: str, type: str, prefix: str, background_tasks: BackgroundTasks):
     try:
         background_tasks_status[prefix] = {'status': 'notReady'}
-        if os.path.exists(f'share/{prefix}'):
-            dirs = os.listdir(f'share/{prefix}')
+        if os.path.exists(f'share/result/{prefix}'):
+            dirs = os.listdir(f'share/result/{prefix}')
             dirs = sorted(dirs, reverse=True)
             resp = {
                 'url': '',
@@ -271,8 +272,8 @@ async def get_report_v1(report: Report, background_tasks: BackgroundTasks):
     try:
         prefix = f'{report.type}-{report.uid}'
         background_tasks_status[prefix] = {'status': 'notReady'}
-        if os.path.exists(f'share/{prefix}'):
-            dirs = os.listdir(f'share/{prefix}')
+        if os.path.exists(f'share/result/{prefix}'):
+            dirs = os.listdir(f'share/result/{prefix}')
             dirs = sorted(dirs, reverse=True)
             resp = {
                 'url': '',
