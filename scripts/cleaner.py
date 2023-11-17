@@ -6,7 +6,7 @@ from pprint import pprint
 from datetime import datetime
 
 
-for dir in ['/reports']:
+for dir in ['./share']:
     try:
         current_time = time.time()
         for folder in os.listdir(dir):
@@ -16,7 +16,7 @@ for dir in ['/reports']:
                 fmt = datetime.fromtimestamp(
                     modified_time).strftime("%Y-%m-%d %H:%M:%S")
                 age = current_time - modified_time
-                if age > 30 * 24 * 60 * 60:
+                if age > 15 * 24 * 60 * 60:
                     try:
                         pprint(folder_path + 'modified time:' + fmt)
                         shutil.rmtree(folder_path)
