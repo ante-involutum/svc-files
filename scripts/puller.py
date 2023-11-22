@@ -10,7 +10,7 @@ files_service_hosts = os.getenv('FILES_SERVICE_HOSTS')
 minio_host =  os.getenv('MINIO_HOST')
 
 minioClient = Minio(
-    'dev-minio.atop:9000',
+    minio_host,
     access_key='admin',
     secret_key='changeme',
     secure=False
@@ -59,4 +59,4 @@ if __name__ == "__main__":
     if prefix == '':
         pass
     else:
-        pull('case', prefix)
+        pull('result', prefix)

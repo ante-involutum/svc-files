@@ -15,7 +15,7 @@ class TestFiles():
 
     def test_get_report(self):
         resp = self.bs.get(
-            f'{self.url}/files/report/result/hatbox/hatbox-091143e5-464e-4704-8438-04ecc98f4b1a')
+            f'{self.url}/files/report/result/aomaker/aomaker-091143e5-464e-4704-8438-04ecc98f4b1a')
         assert resp.status_code == 200
 
     def test_tasks(self):

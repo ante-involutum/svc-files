@@ -1,4 +1,3 @@
 registry: dockerhub.qingcloud.com
 repository: qingtest
 image: files
-storage: local
