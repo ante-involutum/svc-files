@@ -3,16 +3,15 @@ import pytest
 from requests import Session
 
 
-env = os.getenv('ENV')
-host = os.getenv('HOST')
+HOST = os.getenv('HOST')
+PORT = os.getenv('PORT')
+RELEASE = os.getenv('RELEASE')
 
 
 @pytest.fixture()
 def init(request):
     bs = Session()
-    bs.headers['Authorization'] = 'admin'
+    bs.headers['apikey'] = 'admin'
     request.cls.bs = bs
-    if env == 'loc':
-        request.cls.url = f'http://127.0.0.1:8004'
-    else:
-        request.cls.url = f'http://{host}/{env}'
+    request.cls.url = f'http://{HOST}:{PORT}/{RELEASE}'
+    # request.cls.url = f'http://{HOST}:{PORT}'

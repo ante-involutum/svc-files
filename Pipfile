@@ -50,3 +50,4 @@ python_version = "3.10"
 [scripts]
 chart = "sh scripts/chart.sh"
 docker = "sh scripts/docker.sh"
+sidecar = "sh scripts/sidecardocker.sh"
