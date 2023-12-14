@@ -38,7 +38,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: "{{ .Release.Name }}-minio"
+            claimName: "data-{{ .Release.Name }}-minio"
 
 ---
 apiVersion: apisix.apache.org/v2
