@@ -18,9 +18,3 @@ class Report(BaseModel):
             except:
                 raise ValueError('Invalid UUID')
         return uid
-
-    @validator('type')
-    def check_type(cls, type):
-        if type not in ["aomaker", "hatbox"]:
-            raise ValueError('Type must be aomaker or hatbox')
-        return type

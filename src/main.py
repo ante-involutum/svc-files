@@ -117,9 +117,8 @@ async def get_object(bucket_name: str, prefix: str):
 async def get_report(report: Report):
     logger.info(report)
     try:
-        prefix = f'{report.type}-{report.uid}'
         resp = {
-            'url': f"http://{HOST}:{PORT}/{RELEASE}/share/result/{prefix}/index.html"
+            'url': f"http://{HOST}:{PORT}/{RELEASE}/share/result/{report.uid}/index.html"
         }
         logger.info(resp)
         return resp
