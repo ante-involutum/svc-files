@@ -48,6 +48,6 @@ websockets = "==10.4"
 python_version = "3.10"
 
 [scripts]
-chart = "sh scripts/chart.sh"
-docker = "sh scripts/docker.sh"
-sidecar = "sh scripts/sidecardocker.sh"
+chart = "sh chart.sh"
+docker = "sh docker.sh"
+sidecar = "sh sidecardocker.sh"
