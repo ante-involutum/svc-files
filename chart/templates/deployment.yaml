@@ -2,12 +2,16 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: "{{ .Release.Name }}-{{ .Chart.Name }}"
+  name: "{{ .Release.Name }}"
   labels:
-    app: "{{ .Release.Name }}-{{ .Chart.Name }}"
+    app: "{{ .Release.Name }}"
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/v1.0/metrics"
+    prometheus.io/port: "8004"
 spec:
   selector:
-    app: "{{ .Release.Name }}-{{ .Chart.Name }}"
+    app: "{{ .Release.Name }}"
   ports:
     - protocol: TCP
       name: files
@@ -18,27 +22,27 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "{{ .Release.Name }}-{{ .Chart.Name }}"
+  name: "{{ .Release.Name }}"
   labels:
-    app: "{{ .Release.Name }}-{{ .Chart.Name }}"
+    app: "{{ .Release.Name }}"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: "{{ .Release.Name }}-{{ .Chart.Name }}"
+      app: "{{ .Release.Name }}"
   template:
     metadata:
       labels:
-        app: "{{ .Release.Name }}-{{ .Chart.Name }}"
+        app: "{{ .Release.Name }}"
     spec:
-      imagePullSecrets:
-        - name: regcred
+      # imagePullSecrets:
+      #   - name: regcred
       containers:
         - name: files
           image: "{{ .Values.registry }}/{{ .Values.repository }}/{{ .Values.image }}:{{ .Chart.AppVersion }}"
-          securityContext:
-            runAsUser: 0
-            privileged: false
+          # securityContext:
+          # runAsUser: 0
+          # privileged: false
           command:
             - "uvicorn"
           args:
@@ -51,43 +55,27 @@ spec:
           ports:
             - containerPort: 8004
           imagePullPolicy: Always
-          volumeMounts:
-            - mountPath: /files/share
-              name: share-volume
           env:
             - name: MINIO_ACCESS_KEY
               valueFrom:
                 configMapKeyRef:
-                  name: atop-globe-config
-                  key: minio_access_key
-            - name: MINIO_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: atop-globe-config
-                  key: minio_host
+                  name: files-config
+                  key: MINIO_ACCESS_KEY
             - name: MINIO_SECRET_KEY
               valueFrom:
                 configMapKeyRef:
-                  name: atop-globe-config
-                  key: minio_secret_key
+                  name: files-config
+                  key: MINIO_SECRET_KEY
+            - name: MINIO_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: files-config
+                  key: MINIO_HOST
             - name: HOST
               valueFrom:
-                configMapKeyRef:
-                  name: atop-globe-config
-                  key: host
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: RELEASE
+              value: "{{ .Release.Name }}"
             - name: PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: atop-globe-config
-                  key: port
-            - name: ENV
-              valueFrom:
-                configMapKeyRef:
-                  name: atop-globe-config
-                  key: env
-            - name: LIFE_CYCLE
-              value: "30"
-      volumes:
-        - name: share-volume
-          persistentVolumeClaim:
-            claimName: "{{ .Release.Name }}-minio"
+              value: "31690"

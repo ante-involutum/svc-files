@@ -1,1 +1,9 @@
 report
+chart
+.github
+scripts
+.env
+.gitignore
+LICENSE
+Pipfile
+Pipfile.lock
