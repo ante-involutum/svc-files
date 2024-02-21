@@ -12,10 +12,6 @@ run:
 test:
 	pipenv run pytest
 
-coverage:
-	@if [ ! -f coverage.out ]; then echo "Coverage profile file not found"; exit 1; fi
-	go tool cover -html=coverage.out
-
 install:
 	pipenv install
 
@@ -26,4 +22,4 @@ chart:
 	helm package chart 
 	helm push $(CHART_NAME)-*.tgz  oci://registry-1.docker.io/no8ge
 
-.PHONY: build clean run fmt test coverage deps docker chart
+.PHONY: build clean run fmt test deps docker chart
