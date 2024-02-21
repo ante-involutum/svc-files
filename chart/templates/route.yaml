@@ -45,3 +45,47 @@ spec:
   scheme: http
   loadbalancer:
     type: roundrobin
+
+
+---
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: "{{ .Release.Name }}-nginx"
+spec:
+  http:
+    - name: "{{ .Release.Name }}-nginx"
+      match:
+        paths:
+          - /{{ .Release.Name }}/share/*
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+          - HEAD
+          - OPTIONS
+          - CONNECT
+          - TRACE
+      plugins:
+        - name: proxy-rewrite
+          enable: true
+          config:
+            regex_uri:
+              - /{{ .Release.Name }}/share/*
+              - /
+      websocket: true
+      backends:
+        - serviceName: "{{ .Release.Name }}-nginx"
+          servicePort: 80
+
+---
+apiVersion: apisix.apache.org/v2
+kind: ApisixUpstream
+metadata:
+  name: "{{ .Release.Name }}-nginx"
+spec:
+  scheme: http
+  loadbalancer:
+    type: roundrobin
