@@ -6,8 +6,11 @@ CHART_NAME := $(shell helm show chart chart | awk '/^name:/ {print $$2}')
 clean:
 	rm -f $(CHART_NAME)*
 
-build:
+buildx:
 	docker buildx build -f Dockerfile --platform linux/amd64 -t no8ge/$(CHART_NAME):$(APPVERSION) . --push
+
+build:
+	docker buildx build -f Dockerfile --platform linux/amd64 -t dockerhub.qingcloud.com/qingtest/$(CHART_NAME):$(APPVERSION) . --push
 
 package:
 	helm package chart 
