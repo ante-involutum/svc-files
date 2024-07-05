@@ -1,64 +1,73 @@
-import pytest
+from requests import Session
 
 
-@pytest.mark.usefixtures('init')
-class TestFiles():
+class TestFiles:
+
+    bs = Session()
+    bs.headers["Authorization"] = "admin"
+    bs.headers["x_atop_version"] = "1.0.10"
+
+    # url = f"http://127.0.0.1:8004"
+    url = f"http://172.16.60.10:31690/apis/files"
 
     def test_upload(self):
+
         resp = self.bs.post(
-            f'{self.url}/files/upload/',
-            files={'files': open('./README.md', 'r')},
-            params={
-                'bucket_name': 'test'
-            })
-        assert resp.status_code == 200
-
-    def test_get_report(self):
-        resp = self.bs.get(
-            f'{self.url}/files/report/result/aomaker/aomaker-091143e5-464e-4704-8438-04ecc98f4b1a')
-        assert resp.status_code == 200
-
-    def test_tasks(self):
-        resp = self.bs.get(f'{self.url}/files/tasks')
-        assert resp.status_code == 200
-
-    def test_get_object(self):
-        resp = self.bs.get(
-            f'{self.url}/files/',
-            params={
-                "prefix": "hatbox-091143e5-464e-4704-8438-04ecc98f4b1a/data/autotest/reports/html/widgets/summary.json",
-                'bucket_name': 'result'
-            }
+            f"{self.url}/upload/result", files={"files": open("./README.md", "r")}
         )
         assert resp.status_code == 200
 
-    def test_post_object(self):
-        resp = self.bs.post(
-            f'{self.url}/files/v1.1',
-            files={'files': open('./README.md', 'r')},
-            params={
-                'bucket_name': 'test'
-            })
-        assert resp.status_code == 200
+    def test_get_aomaker_report(self):
 
-    def test_get_object_v1(self):
-        resp = self.bs.get(
-            f'{self.url}/files/v1.1',
-            params={
-                "prefix": "hatbox-091143e5-464e-4704-8438-04ecc98f4b1a/data/autotest/reports/html/widgets/summary.json",
-                'bucket_name': 'result'
-            }
-        )
-        assert resp.status_code == 200
-
-    def test_get_report_v1(self):
-        payload = {
-            "uid": '091143e5-464e-4704-8438-04ecc98f4b1a',
-            "type": "hatbox",
-            'path': '/hatbox/Log/report/pytest_html'
+        data = {
+            "uid": "4bf580d6-53e1-4cf0-b0ef-1ec9b675e3f31",
+            "type": "aomaker",
+            "path": "/data/autotest/reports/html/index.html",
         }
+
         resp = self.bs.get(
-            f'{self.url}/files/v1.1/report',
-            json=payload,
+            f"{self.url}/report",
+            params=data,
+        )
+        assert resp.status_code == 200
+
+    def test_get_hatbox_report(self):
+
+        data = {
+            "uid": "4bf580d6-53e1-4cf0-b0ef-1ec9b675e3f31",
+            "type": "hatbox",
+            "path": "/hatbox/Log/report/pytest_html",
+        }
+
+        resp = self.bs.get(
+            f"{self.url}/report",
+            params=data,
+        )
+        assert resp.status_code == 200
+
+    def test_download_file(self):
+
+        data = {
+            "object": "README.md",
+            "bucket": "result",
+        }
+
+        resp = self.bs.get(
+            f"{self.url}/files",
+            params=data,
+        )
+        assert resp.status_code == 200
+
+    def test_query_objects(self):
+
+        data = {
+            "prefix": "aomaker-4bf580d6-53e1-4cf0-b0ef-1ec9b675e3f31",
+            "bucket": "result",
+            # "recursive": False,
+        }
+
+        resp = self.bs.get(
+            f"{self.url}/query",
+            params=data,
         )
         assert resp.status_code == 200

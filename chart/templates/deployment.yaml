@@ -80,13 +80,8 @@ spec:
                 configMapKeyRef:
                   name: atop-globe-config
                   key: port
-            - name: ENV
-              valueFrom:
-                configMapKeyRef:
-                  name: atop-globe-config
-                  key: env
-            - name: LIFE_CYCLE
-              value: "30"
+            - name: NGINX
+              value: "{{ .Values.nginx.nodePort }}"              
       volumes:
         - name: share-volume
           persistentVolumeClaim:

@@ -1,3 +1,5 @@
 registry: dockerhub.qingcloud.com
 repository: qingtest
 image: files
+nginx:
+  nodePort: 30008

@@ -8,8 +8,6 @@ clean:
 
 buildx:
 	docker buildx build -f Dockerfile --platform linux/amd64 -t no8ge/$(CHART_NAME):$(APPVERSION) . --push
-
-build:
 	docker buildx build -f Dockerfile --platform linux/amd64 -t dockerhub.qingcloud.com/qingtest/$(CHART_NAME):$(APPVERSION) . --push
 
 package:
