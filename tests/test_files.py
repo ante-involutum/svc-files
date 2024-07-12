@@ -7,8 +7,8 @@ class TestFiles:
     bs.headers["Authorization"] = "admin"
     bs.headers["x_atop_version"] = "1.0.10"
 
-    # url = f"http://127.0.0.1:8004"
-    url = f"http://172.16.60.10:31690/apis/files"
+    url = f"http://127.0.0.1:8004"
+    # url = f"http://172.16.60.10:31690/apis/files"
 
     def test_upload(self):
 

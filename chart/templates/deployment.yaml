@@ -51,9 +51,6 @@ spec:
           ports:
             - containerPort: 8004
           imagePullPolicy: Always
-          volumeMounts:
-            - mountPath: /files/share
-              name: share-volume
           env:
             - name: MINIO_ACCESS_KEY
               valueFrom:
@@ -81,8 +78,4 @@ spec:
                   name: atop-globe-config
                   key: port
             - name: NGINX
-              value: "{{ .Values.nginx.nodePort }}"              
-      volumes:
-        - name: share-volume
-          persistentVolumeClaim:
-            claimName: "{{ .Release.Name }}-minio"
+              value: "{{ .Values.nginx.nodePort }}"

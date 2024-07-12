@@ -4,11 +4,8 @@ from minio import Minio
 from minio.error import S3Error
 
 from fastapi import UploadFile
-from fastapi import FastAPI, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, File, UploadFile, HTTPException
-
-from starlette.staticfiles import StaticFiles
 
 
 from src.env import MINIO_HOST, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, HOST, NGINX
@@ -23,8 +20,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.mount("/share", StaticFiles(directory="share/result"), name="share")
 
 
 minio_client = Minio(
