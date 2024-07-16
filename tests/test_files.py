@@ -53,7 +53,7 @@ class TestFiles:
         }
 
         resp = self.bs.get(
-            f"{self.url}/files",
+            f"{self.url}/download",
             params=data,
         )
         assert resp.status_code == 200

@@ -42,7 +42,7 @@ async def upload_files(bucket: str, files: list[UploadFile] = File(...)):
         raise HTTPException(status_code=500, detail=f"Error: {err}")
 
 
-@app.get("/files/")
+@app.get("/download/")
 async def download_file(bucket: str, object: str):
     try:
         response = minio_client.get_object(bucket, object)
