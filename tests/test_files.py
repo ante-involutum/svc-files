@@ -7,8 +7,8 @@ class TestFiles:
     bs.headers["Authorization"] = "admin"
     bs.headers["x_atop_version"] = "1.0.10"
 
-    url = f"http://127.0.0.1:8004"
-    # url = f"http://172.16.60.10:31690/apis/files"
+    # url = f"http://127.0.0.1:8004"
+    url = f"http://172.16.60.10:31690/apis/files"
 
     def test_upload(self):
 
@@ -36,7 +36,7 @@ class TestFiles:
         data = {
             "uid": "4bf580d6-53e1-4cf0-b0ef-1ec9b675e3f31",
             "type": "hatbox",
-            "path": "/hatbox/Log/report/pytest_html",
+            "path": "/hatbox/Log/report/pytest_html/index.html",
         }
 
         resp = self.bs.get(
@@ -70,4 +70,20 @@ class TestFiles:
             f"{self.url}/query",
             params=data,
         )
+        assert resp.status_code == 200
+
+    def test_get(self):
+
+        data = {
+            "uid": "4bf580d6-53e1-4cf0-b0ef-1ec9b675e3f31",
+            "type": "aomaker",
+            # "path": "/data/autotest/reports/html/index.html",
+            "path":'/data/autotest/reports/html/widgets/summary.json'
+        }
+
+        resp = self.bs.get(
+            f"{self.url}/get",
+            params=data,
+        )
+
         assert resp.status_code == 200
