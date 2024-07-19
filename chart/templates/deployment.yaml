@@ -43,10 +43,9 @@ spec:
             - "uvicorn"
           args:
             - "src.main:app"
-            - "--reload"
             - "--host=0.0.0.0"
             - "--port=8004"
-            - "--debug"
+            - "--log-level=info"
             - "--log-config=uvicorn_config.json"
           ports:
             - containerPort: 8004
