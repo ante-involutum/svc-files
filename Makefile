@@ -7,8 +7,8 @@ clean:
 	rm -f $(CHART_NAME)*
 
 buildx:
-	docker buildx build -f Dockerfile --platform linux/amd64 -t no8ge/$(CHART_NAME):$(APPVERSION) . --push
 	docker buildx build -f Dockerfile --platform linux/amd64 -t dockerhub.qingcloud.com/qingtest/$(CHART_NAME):$(APPVERSION) . --push
+	docker buildx build -f Dockerfile --platform linux/amd64 -t no8ge/$(CHART_NAME):$(APPVERSION) . --push
 
 package:
 	helm package chart 

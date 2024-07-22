@@ -5,7 +5,7 @@ class TestFiles:
 
     bs = Session()
     bs.headers["Authorization"] = "admin"
-    bs.headers["x_atop_version"] = "1.0.10"
+    bs.headers["x_atop_version"] = "dev"
 
     # url = f"http://127.0.0.1:8004"
     url = f"http://172.16.60.10:31690/apis/files"
@@ -78,7 +78,7 @@ class TestFiles:
             "uid": "4bf580d6-53e1-4cf0-b0ef-1ec9b675e3f31",
             "type": "aomaker",
             # "path": "/data/autotest/reports/html/index.html",
-            "path":'/data/autotest/reports/html/widgets/summary.json'
+            "path": "/data/autotest/reports/html/widgets/summary.json",
         }
 
         resp = self.bs.get(
