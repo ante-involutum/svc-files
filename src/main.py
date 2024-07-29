@@ -97,14 +97,18 @@ async def get_file(type: str, uid: str, path: str):
     prefix = f"{type}-{uid}/"
     resp = {"data": None}
     try:
-        objects = minio_client.list_objects("result", prefix=prefix, recursive=True)
+        objects = minio_client.list_objects("result", prefix=prefix, recursive=False)
+        file_list = []
         for obj in objects:
-            if obj.object_name.endswith(path):
-                response = minio_client.get_object("result", obj.object_name)
-                file_data = response.read()
-                resp["data"] = file_data.decode("utf-8")
-                logger.debug(resp)
-                return resp
+            if obj.object_name.endswith("/"):
+                file_list.append(obj.object_name)
+        if len(file_list) != 0:
+            name = file_list[0] + path[1:]
+            response = minio_client.get_object("result", name)
+            file_data = response.read()
+            resp["data"] = file_data.decode("utf-8")
+            logger.debug(resp)
+            return resp
         logger.debug(resp)
         return resp
     except S3Error as err:
