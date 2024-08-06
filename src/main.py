@@ -84,7 +84,7 @@ async def get_report(type: str, uid: str, path: str):
             # raise HTTPException(status_code=404, detail="Report not found")
             return resp
 
-        url = f"http://{HOST}:{NGINX}/result/{file_list[0]}{path[1:]}"
+        url = f"http://{HOST}:{NGINX}/result/{file_list[-1]}{path[1:]}"
         resp["url"] = url
         logger.debug(resp)
         return resp
