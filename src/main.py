@@ -103,7 +103,7 @@ async def get_file(type: str, uid: str, path: str):
             if obj.object_name.endswith("/"):
                 file_list.append(obj.object_name)
         if len(file_list) != 0:
-            name = file_list[0] + path[1:]
+            name = file_list[-1] + path[1:]
             response = minio_client.get_object("result", name)
             file_data = response.read()
             resp["data"] = file_data.decode("utf-8")
